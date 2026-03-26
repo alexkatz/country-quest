@@ -13,7 +13,7 @@ export const CountryPath = ({ feature, path, onClick }: CountryPathProps) => {
   return (
     <path
       d={d}
-      data-iso={feature.properties.ISO_A3}
+      data-iso={String(feature.id ?? '')}
       className='fill-surface stroke-text/50 stroke-[0.1] cursor-pointer hover:fill-text/20'
       onClick={onClick}
     />
