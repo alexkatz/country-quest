@@ -12,7 +12,7 @@ export const CountryPath = ({ feature }: CountryPathProps) => {
     <path
       d={d}
       data-iso={feature.properties.ISO_A3}
-      className="fill-gray-200 stroke-gray-400 stroke-[0.1] dark:fill-gray-700 dark:stroke-gray-500"
+      className="fill-country stroke-border stroke-[0.1]"
     />
   );
 };
