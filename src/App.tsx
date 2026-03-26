@@ -1,7 +1,7 @@
 import { useDarkMode } from "./layout/useDarkMode";
 import { WorldMap } from "./map/WorldMap";
 
-export default function App() {
+export const App = () => {
   const { dark, toggle } = useDarkMode();
 
   return (

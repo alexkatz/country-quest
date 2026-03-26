@@ -5,7 +5,7 @@ export const darkModeAtom = atom(
   window.matchMedia("(prefers-color-scheme: dark)").matches,
 );
 
-export function useDarkMode() {
+export const useDarkMode = () => {
   const [dark, setDark] = useAtom(darkModeAtom);
 
   useEffect(() => {

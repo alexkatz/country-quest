@@ -1,7 +1,7 @@
 import { to, useSpring } from "@react-spring/web";
 import { useGesture } from "@use-gesture/react";
 
-export function useMapGestures() {
+export const useMapGestures = () => {
   const [{ x, y, scale }, api] = useSpring(() => ({
     x: 0,
     y: 0,

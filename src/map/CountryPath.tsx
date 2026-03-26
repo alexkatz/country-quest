@@ -1,14 +1,11 @@
-import { memo } from "react";
 import { pathGenerator } from "./projection";
 import type { CountryFeature } from "./types";
 
-interface CountryPathProps {
+type CountryPathProps = {
   feature: CountryFeature;
-}
+};
 
-export const CountryPath = memo(function CountryPath({
-  feature,
-}: CountryPathProps) {
+export const CountryPath = ({ feature }: CountryPathProps) => {
   const d = pathGenerator(feature) ?? undefined;
 
   return (
@@ -18,4 +15,4 @@ export const CountryPath = memo(function CountryPath({
       className="fill-gray-200 stroke-gray-400 stroke-[0.1] dark:fill-gray-700 dark:stroke-gray-500"
     />
   );
-});
+};

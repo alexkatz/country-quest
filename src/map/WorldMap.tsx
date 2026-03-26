@@ -7,7 +7,7 @@ import { useMapGestures } from "./useMapGestures";
 
 const countries = countriesData as CountriesGeoJSON;
 
-export function WorldMap() {
+export const WorldMap = () => {
   const { style, bind } = useMapGestures();
 
   return (
