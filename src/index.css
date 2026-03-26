@@ -1,27 +1,59 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2')
+    format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-Italic[wght].woff2')
+    format('woff2');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --color-background: oklch(1 0 0);           /* white */
-  --color-text: oklch(0.21 0.006 285.75);  /* gray-900 */
-  --color-surface: oklch(0.922 0.004 286.32); /* gray-200 */
-  --color-country: oklch(0.922 0.004 286.32); /* gray-200 */
-  --color-border: oklch(0.707 0.015 286.07);  /* gray-400 */
+  --color-background: oklch(1 0 0); /* white */
+  --color-text: oklch(0.21 0.006 285.75); /* gray-900 */
+  --color-surface: oklch(0.79 0.04 257.03);
 }
 
 .dark {
-  --color-background: oklch(0.129 0.042 264.7);    /* gray-950 */
-  --color-text: oklch(0.968 0.007 247.86);  /* gray-100 */
-  --color-surface: oklch(0.274 0.006 286.03); /* gray-800 */
-  --color-country: oklch(0.373 0.034 259.73); /* gray-700 */
-  --color-border: oklch(0.551 0.014 247.09);  /* gray-500 */
+  --color-background: oklch(0.129 0.042 264.7); /* gray-950 */
+  --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
+  --color-surface: oklch(0.39 0.06 256.27);
 }
 
 @theme inline {
+  --color-*: initial;
   --color-background: var(--color-background);
   --color-text: var(--color-text);
   --color-surface: var(--color-surface);
-  --color-country: var(--color-country);
-  --color-border: var(--color-border);
+}
+
+html {
+  font-family: 'Geist', system-ui, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.lucide {
+  width: 1em;
+  height: 1em;
+  stroke-width: 2;
+}
+
+@utility interactive-opacity {
+  transition: opacity 150ms ease-in-out;
+  &:hover {
+    opacity: 0.8;
+  }
 }
