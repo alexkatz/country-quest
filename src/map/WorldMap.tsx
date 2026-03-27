@@ -1,15 +1,17 @@
 import { useGesture } from '@use-gesture/react';
-import { animated, useSpringValue, to } from '@react-spring/web';
+import {
+  animated,
+  useSpringValue,
+  to,
+  type AnimationConfig,
+} from '@react-spring/web';
 import { geoBounds, geoCentroid, geoOrthographic, geoPath } from 'd3-geo';
 import { tw } from '../layout/tw';
-import {
-  countryGeoData,
-  visibleCountriesAtom,
-  type Country,
-} from './countries';
+import { countryGeoData, type Country } from './countries';
 import { onCenterCountries, type CenterCountriesHandler } from './globeEvents';
 import { useAtomValue } from 'jotai';
 import { useEffect, useEffectEvent, useState } from 'react';
+import { showAllCountriesAtom, revealedCountriesAtom } from './atoms';
 
 const DEG = Math.PI / 180;
 
@@ -45,22 +47,21 @@ const CENTROIDS = countryGeoData.features.map((f) => {
   return [lon * DEG, lat * DEG] as [number, number];
 });
 
+const rotationConfig = {
+  tension: 280,
+  friction: 25,
+} satisfies Partial<AnimationConfig>;
+
+const scaleConfig = {
+  tension: 280,
+  friction: 60,
+} satisfies Partial<AnimationConfig>;
+
 export const WorldMap = () => {
-  const rotX = useSpringValue(0, {
-    config: { tension: 280, friction: 30 },
-  });
-
-  const rotY = useSpringValue(-20, {
-    config: { tension: 280, friction: 30 },
-  });
-
-  const rotZ = useSpringValue(0, {
-    config: { tension: 280, friction: 30 },
-  });
-
-  const scale = useSpringValue(DEFAULT_SCALE, {
-    config: { tension: 280, friction: 60 },
-  });
+  const rotX = useSpringValue(0, { config: rotationConfig });
+  const rotY = useSpringValue(-20, { config: rotationConfig });
+  const rotZ = useSpringValue(0, { config: rotationConfig });
+  const scale = useSpringValue(DEFAULT_SCALE, { config: scaleConfig });
 
   const [lastCenteredCountries, setLastCenteredCountries] = useState<
     Country[] | undefined
@@ -70,6 +71,9 @@ export const WorldMap = () => {
     {
       onDrag: ({ movement: [mx, my], memo, tap, first }) => {
         if (tap) return;
+
+        setLastCenteredCountries(undefined);
+
         const start = first
           ? [rotX.get(), rotY.get(), rotZ.get()]
           : (memo as [number, number, number]);
@@ -181,7 +185,8 @@ export const WorldMap = () => {
     [],
   );
 
-  const visibleCountries = useAtomValue(visibleCountriesAtom);
+  const revealedCountries = useAtomValue(revealedCountriesAtom);
+  const showAllCountries = useAtomValue(showAllCountriesAtom);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
@@ -198,7 +203,9 @@ export const WorldMap = () => {
           className='fill-surface stroke-text/30 stroke-[0.5]'
         />
         {countryGeoData.features.map((feature, i) => {
-          if (!visibleCountries.some((c) => c.id === feature.id)) {
+          const isRevealed = revealedCountries.some((c) => c.id === feature.id);
+
+          if (!showAllCountries && !isRevealed) {
             return null;
           }
 
@@ -207,11 +214,18 @@ export const WorldMap = () => {
           return (
             <animated.path
               className={tw(
-                'fill-land stroke-text/50 stroke-[0.4] cursor-pointer hover:fill-land/50',
+                'fill-land stroke-text/50 stroke-[0.4] cursor-pointer hover:fill-text/15',
+                isRevealed && 'hover:fill-land/70',
+                lastCenteredCountries?.find((c) => c.id === feature.id) &&
+                  'fill-land/50',
+                !isRevealed && 'fill-text/10',
               )}
               key={i}
               data-iso={String(feature.id ?? '')}
-              onMouseEnter={() => setHoveredId(String(feature.id ?? ''))}
+              onMouseEnter={() => {
+                setLastCenteredCountries(undefined);
+                setHoveredId(String(feature.id ?? ''));
+              }}
               onMouseLeave={() => setHoveredId(null)}
               display={to([rotX, rotY, rotZ], (rotX, rotY) => {
                 const viewLonRad = -rotX * DEG;
@@ -235,7 +249,9 @@ export const WorldMap = () => {
         })}
 
         {countryGeoData.features.map((feature, i) => {
-          if (!visibleCountries.some((c) => c.id === feature.id)) {
+          const isRevealed = revealedCountries.some((c) => c.id === feature.id);
+
+          if (!showAllCountries && !isRevealed) {
             return null;
           }
 

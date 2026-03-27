@@ -1,16 +1,10 @@
 import { useAtom } from 'jotai';
-import { themeAtom } from '../layout/themeAtom';
-import { Button } from '../layout/common/Button';
-import { Sun, Moon } from 'lucide-react';
 import { tw } from '../layout/tw';
 import { useEffect, useRef, useState } from 'react';
-import {
-  countries,
-  visibleCountriesAtom,
-  type Country,
-} from '../map/countries';
+import { countries, type Country } from '../map/countries';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useGesture } from '@use-gesture/react';
+import { revealedCountriesAtom } from '../map/atoms';
 
 const fuzzyMatch = (name: string, t: string) => {
   const n = name.toLowerCase();
@@ -23,8 +17,9 @@ const fuzzyMatch = (name: string, t: string) => {
 };
 
 export const NavBar = (props: { className?: string }) => {
-  const [theme, setTheme] = useAtom(themeAtom);
-  const [visibleCountries, setVisibleCountries] = useAtom(visibleCountriesAtom);
+  const [visibleCountries, setVisibleCountries] = useAtom(
+    revealedCountriesAtom,
+  );
   const [term, setTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,8 +42,6 @@ export const NavBar = (props: { className?: string }) => {
       emitCenterCountries([country]);
     }
   };
-
-  const Icon = theme === 'dark' ? Moon : Sun;
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -129,17 +122,6 @@ export const NavBar = (props: { className?: string }) => {
             autoFocus
             {...bindGesture()}
           />
-
-          <Button className='self-stretch bg-background/40'>reveal</Button>
-
-          <Button
-            className='ml-auto border-none p-0 shadow-none self-stretch bg-none flex items-center gap-2'
-            onClick={() => {
-              setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-            }}
-          >
-            <Icon className='opacity-60' />
-          </Button>
         </div>
 
         <div className='flex gap-2 flex-wrap'>
