@@ -7,7 +7,7 @@ import { writeFileSync } from 'fs';
 import { presimplify, simplify } from 'topojson-simplify';
 
 const require = createRequire(import.meta.url);
-const MIN_WEIGHT = 0.03;
+const MIN_WEIGHT = 0.02;
 
 const topo = require('world-atlas/countries-50m.json');
 const simplified = simplify(presimplify(topo), MIN_WEIGHT);

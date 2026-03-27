@@ -1,10 +1,15 @@
-import { feature as topoFeature } from 'topojson-client';
-import type { Topology } from 'topojson-specification';
-import countriesData from './data/countries-simplified.json';
-import type { CountriesGeoJSON } from './types';
 import { useGesture } from '@use-gesture/react';
 import { animated, useSpringValue, to } from '@react-spring/web';
-import { geoCentroid, geoOrthographic, geoPath } from 'd3-geo';
+import { geoBounds, geoCentroid, geoOrthographic, geoPath } from 'd3-geo';
+import { tw } from '../layout/tw';
+import {
+  countryGeoData,
+  visibleCountriesAtom,
+  type Country,
+} from './countries';
+import { onCenterCountries, type CenterCountriesHandler } from './globeEvents';
+import { useAtomValue } from 'jotai';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 const DEG = Math.PI / 180;
 
@@ -35,12 +40,7 @@ const getProjection = (props: {
   return cachedProjection!;
 };
 
-const COUNTRIES = topoFeature(
-  countriesData as unknown as Topology,
-  (countriesData as unknown as Topology).objects.countries,
-) as unknown as CountriesGeoJSON;
-
-const CENTROIDS = COUNTRIES.features.map((f) => {
+const CENTROIDS = countryGeoData.features.map((f) => {
   const [lon, lat] = geoCentroid(f);
   return [lon * DEG, lat * DEG] as [number, number];
 });
@@ -61,6 +61,10 @@ export const WorldMap = () => {
   const scale = useSpringValue(DEFAULT_SCALE, {
     config: { tension: 280, friction: 60 },
   });
+
+  const [lastCenteredCountries, setLastCenteredCountries] = useState<
+    Country[] | undefined
+  >();
 
   const bind = useGesture(
     {
@@ -100,6 +104,86 @@ export const WorldMap = () => {
     },
   );
 
+  const centerCountries = useEffectEvent(((countries) => {
+    const indices = countries
+      .map((c) => countryGeoData.features.findIndex((f) => f.id === c.id))
+      .filter((i) => i >= 0);
+
+    if (indices.length === 0) return;
+
+    const centroids = indices.map((i) => CENTROIDS[i]);
+
+    // 3D vector mean for a correct geographic center across the antimeridian
+    let x = 0,
+      y = 0,
+      z = 0;
+    for (const [lonRad, latRad] of centroids) {
+      x += Math.cos(latRad) * Math.cos(lonRad);
+      y += Math.cos(latRad) * Math.sin(lonRad);
+      z += Math.sin(latRad);
+    }
+    const mag = Math.sqrt(x * x + y * y + z * z);
+    const centerLon = Math.atan2(y, x) / DEG;
+    const centerLat = Math.asin(z / mag) / DEG;
+
+    rotX.start(-centerLon);
+    rotY.start(-centerLat);
+
+    // Fit scale using bounding box corners so country size is accounted for
+    const centerLonRad = centerLon * DEG;
+    const centerLatRad = centerLat * DEG;
+    const boundaryPoints = indices.flatMap((i) => {
+      const [[west, south], [east, north]] = geoBounds(
+        countryGeoData.features[i],
+      );
+      return [
+        [west * DEG, south * DEG],
+        [east * DEG, north * DEG],
+        [west * DEG, north * DEG],
+        [east * DEG, south * DEG],
+      ] as [number, number][];
+    });
+
+    let maxAngDist = 0;
+    for (const [lonRad, latRad] of boundaryPoints) {
+      const dot = Math.max(
+        -1,
+        Math.min(
+          1,
+          Math.sin(latRad) * Math.sin(centerLatRad) +
+            Math.cos(latRad) *
+              Math.cos(centerLatRad) *
+              Math.cos(lonRad - centerLonRad),
+        ),
+      );
+      maxAngDist = Math.max(maxAngDist, Math.acos(dot));
+    }
+
+    const MAX_CENTER_SCALE = 400;
+    const fitScale =
+      maxAngDist > 0.01 ? ((GLOBE_SIZE / 2) * 0.6) / Math.sin(maxAngDist) : 500;
+
+    const currentScale = scale.get();
+    const newScale =
+      currentScale > MAX_CENTER_SCALE
+        ? Math.min(currentScale, fitScale) // stay zoomed in, but pull back if country overflows
+        : Math.min(MAX_CENTER_SCALE, fitScale);
+
+    scale.start(Math.max(MIN_SCALE, newScale));
+  }) satisfies CenterCountriesHandler);
+
+  useEffect(
+    () =>
+      onCenterCountries((countries) => {
+        centerCountries(countries);
+        setLastCenteredCountries(countries);
+      }),
+    [],
+  );
+
+  const visibleCountries = useAtomValue(visibleCountriesAtom);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
   return (
     <div className='relative flex h-full w-full items-center justify-center overflow-hidden touch-none'>
       <svg
@@ -111,15 +195,24 @@ export const WorldMap = () => {
           cx={GLOBE_SIZE / 2}
           cy={GLOBE_SIZE / 2}
           r={scale}
-          className='fill-surface/40 stroke-text/30 stroke-[0.5]'
+          className='fill-surface stroke-text/30 stroke-[0.5]'
         />
-        {COUNTRIES.features.map((feature, i) => {
+        {countryGeoData.features.map((feature, i) => {
+          if (!visibleCountries.some((c) => c.id === feature.id)) {
+            return null;
+          }
+
           const [lonRad, latRad] = CENTROIDS[i];
+
           return (
             <animated.path
-              className='fill-surface stroke-text/50 stroke-[0.4] cursor-pointer hover:fill-text/20'
+              className={tw(
+                'fill-land stroke-text/50 stroke-[0.4] cursor-pointer hover:fill-land/50',
+              )}
               key={i}
               data-iso={String(feature.id ?? '')}
+              onMouseEnter={() => setHoveredId(String(feature.id ?? ''))}
+              onMouseLeave={() => setHoveredId(null)}
               display={to([rotX, rotY, rotZ], (rotX, rotY) => {
                 const viewLonRad = -rotX * DEG;
                 const viewLatRad = -rotY * DEG;
@@ -141,7 +234,11 @@ export const WorldMap = () => {
           );
         })}
 
-        {COUNTRIES.features.map((feature, i) => {
+        {countryGeoData.features.map((feature, i) => {
+          if (!visibleCountries.some((c) => c.id === feature.id)) {
+            return null;
+          }
+
           const [lonRad, latRad] = CENTROIDS[i];
           return (
             <animated.g
@@ -177,12 +274,19 @@ export const WorldMap = () => {
                 },
               )}
               scale={scale}
+              className={tw(
+                'transition-opacity',
+                hoveredId === feature.id ||
+                  lastCenteredCountries?.find((c) => c.id === feature.id)
+                  ? 'opacity-100'
+                  : 'opacity-0',
+              )}
             >
               <text
                 x={0}
                 textAnchor='middle'
                 className='fill-text text-sm font-medium pointer-events-none select-none'
-                style={{ fontSize: '3px' }}
+                style={{ fontSize: '5px' }}
               >
                 {feature.properties.name}
               </text>

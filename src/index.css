@@ -24,12 +24,14 @@
   --color-background: oklch(1 0 0); /* white */
   --color-text: oklch(0.21 0.006 285.75); /* gray-900 */
   --color-surface: oklch(0.79 0.04 257.03);
+  --color-land: #58e37b;
 }
 
 .dark {
   --color-background: oklch(0.129 0.042 264.7); /* gray-950 */
   --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
   --color-surface: oklch(0.39 0.06 256.27);
+  --color-land: #1a5a2a;
 }
 
 @theme inline {
@@ -37,6 +39,8 @@
   --color-background: var(--color-background);
   --color-text: var(--color-text);
   --color-surface: var(--color-surface);
+  --color-land: var(--color-land);
+  --color-ocean: var(--color-ocean);
 }
 
 html {
@@ -54,6 +58,6 @@ html {
 @utility interactive-opacity {
   transition: opacity 150ms ease-in-out;
   &:hover {
-    opacity: 0.8;
+    opacity: 0.7;
   }
 }
