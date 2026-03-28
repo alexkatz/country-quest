@@ -45,6 +45,7 @@ html {
   width: 1em;
   height: 1em;
   stroke-width: 2;
+  display: inline-block;
 }
 
 @utility interactive-opacity {
