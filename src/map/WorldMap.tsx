@@ -48,7 +48,7 @@ const LAND_CENTERED_FILL = 'rgba(74, 166, 107, 0.50)';
 const hoveredIdAtom = atom<string | undefined>();
 const lastCenteredCountriesAtom = atom<Country[] | undefined>();
 
-export const WorldMapCanvas = () => {
+export const WorldMap = () => {
   const store = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rotX = useSpringValue(0, { config: rotationConfig });
