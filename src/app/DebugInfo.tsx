@@ -6,17 +6,17 @@ import {
   roundAtom,
   showDebugInfoAtom,
   startCountryAtom,
-} from '../game/atoms';
+} from '../game/state';
 import type { ReactNode } from 'react';
 
 const InfoItem = (props: {
   className?: string;
-  label: ReactNode;
+  label: string;
   value: ReactNode;
 }) => {
   return (
     <div className='flex items-center gap-2'>
-      <div className='opacity-60'>{props.label}</div>
+      <div className='opacity-50'>{props.label}:</div>
       <div>{props.value}</div>
     </div>
   );
@@ -38,10 +38,13 @@ export const DebugInfo = () => {
       <InfoItem label='round' value={round} />
       <InfoItem label='maxPathSize' value={maxPathSize} />
 
-      <InfoItem label='startCountry' value={startCountry} />
-      <InfoItem label='endCountry' value={endCountry} />
+      <InfoItem label='startCountry' value={startCountry.name} />
+      <InfoItem label='endCountry' value={endCountry.name} />
 
-      <InfoItem label='guessedCountries' value={guessedCountries.join(', ')} />
+      <InfoItem
+        label='guessedCountries'
+        value={guessedCountries.map((c) => c.name).join(', ')}
+      />
     </div>
   );
 };

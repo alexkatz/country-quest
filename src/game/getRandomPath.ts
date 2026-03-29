@@ -1,16 +1,17 @@
+import type { Country } from '../map/countries';
 import { borders } from './borders';
+import { countryByName } from './countryByName';
 
-const hasNeighbors = (country: string) =>
-  borders[country as keyof typeof borders]?.length > 0;
+const hasNeighbors = (name: string) => borders[name]?.length > 0;
 
-const getStartingCountry = (startingCountry?: keyof typeof borders) => {
-  if (startingCountry) {
-    return startingCountry;
+const getStartingCountry = (name?: string) => {
+  if (name) {
+    return name;
   }
 
   const allCountries = Object.keys(borders).filter(hasNeighbors);
   const randomIndex = Math.floor(Math.random() * allCountries.length);
-  return allCountries[randomIndex] as keyof typeof borders;
+  return allCountries[randomIndex];
 };
 
 const findPath = (currentPath: string[], length: number): string[] | null => {
@@ -44,7 +45,10 @@ type Props = {
   startingCountry?: keyof typeof borders;
 };
 
-export const getRandomPath = ({ length, startingCountry }: Props): string[] => {
+export const getRandomPath = ({
+  length,
+  startingCountry,
+}: Props): Country[] => {
   const start = getStartingCountry(startingCountry);
   const result = findPath([start], length);
 
@@ -53,5 +57,5 @@ export const getRandomPath = ({ length, startingCountry }: Props): string[] => {
     return getRandomPath({ length });
   }
 
-  return result;
+  return result.map((name) => countryByName.get(name)!);
 };

@@ -1,8 +1,6 @@
+import type { Country } from '../map/countries';
 import { borders } from './borders';
 
-export const getIsContiguous = (
-  a: keyof typeof borders,
-  b: keyof typeof borders,
-) => {
-  return borders[a]?.includes(b as never) ?? false;
+export const getIsContiguous = (a: Country, b: Country) => {
+  return borders[a.name]?.includes(b.name) ?? false;
 };

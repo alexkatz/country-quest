@@ -219,7 +219,7 @@ export const borders = {
     'Bosnia and Herzegovina',
     'Montenegro',
   ],
-  Cyprus: ['Northern Cyprus', 'Turkey', 'Lebanon'], // ~75 km from Turkey, ~175 km from Lebanon
+  Cyprus: ['Northern Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
   Czechia: ['Germany', 'Austria', 'Slovakia', 'Poland'],
   Denmark: ['Germany'],
   Estonia: ['Latvia', 'Russia'],
@@ -285,7 +285,7 @@ export const borders = {
     'Albania',
   ],
   Netherlands: ['Belgium', 'Germany'],
-  'Northern Cyprus': ['Cyprus', 'Turkey', 'Lebanon'], // ~75 km from Turkey, ~175 km from Lebanon
+  'Northern Cyprus': ['Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
   Norway: ['Sweden', 'Finland', 'Russia'],
   Poland: [
     'Germany',
@@ -350,7 +350,7 @@ export const borders = {
   Israel: ['Egypt', 'Palestine', 'Jordan', 'Lebanon', 'Syria'],
   Jordan: ['Saudi Arabia', 'Iraq', 'Syria', 'Israel', 'Palestine'],
   Kuwait: ['Saudi Arabia', 'Iraq'],
-  Lebanon: ['Syria', 'Israel', 'Cyprus'],
+  Lebanon: ['Syria', 'Israel', 'Cyprus', 'Northern Cyprus'],
   Oman: ['United Arab Emirates', 'Saudi Arabia', 'Yemen'],
   Palestine: ['Egypt', 'Israel', 'Jordan'],
   Qatar: ['Saudi Arabia'],
@@ -364,7 +364,15 @@ export const borders = {
     'Yemen',
     'Bahrain',
   ],
-  Syria: ['Turkey', 'Iraq', 'Jordan', 'Lebanon', 'Israel'],
+  Syria: [
+    'Turkey',
+    'Iraq',
+    'Jordan',
+    'Lebanon',
+    'Israel',
+    'Cyprus',
+    'Northern Cyprus',
+  ],
   'United Arab Emirates': ['Saudi Arabia', 'Oman'],
   Yemen: ['Saudi Arabia', 'Oman', 'Djibouti', 'Eritrea'],
 
@@ -418,6 +426,7 @@ export const borders = {
     'Iraq',
     'Syria',
     'Cyprus',
+    'Northern Cyprus',
   ],
   Turkmenistan: ['Kazakhstan', 'Uzbekistan', 'Afghanistan', 'Iran'],
   Uzbekistan: [
@@ -544,4 +553,4 @@ export const borders = {
   Suriname: ['Guyana', 'Brazil', 'French Guiana'],
   Uruguay: ['Argentina', 'Brazil'],
   Venezuela: ['Colombia', 'Guyana', 'Brazil', 'Trinidad and Tobago'],
-} as const;
+} as Record<string, string[]>;

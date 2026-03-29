@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { countries, type Country } from '../map/countries';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useGesture } from '@use-gesture/react';
-import {
-  revealedCountriesAtom,
-  showAllCountriesAtom,
-  showAllNamesAtom,
-} from '../map/atoms';
 import { Button } from '../layout/common/Button';
 import { Square, SquareCheck } from 'lucide-react';
+import {
+  showAllCountriesAtom,
+  showAllNamesAtom,
+  guessedCountriesAtom,
+} from '../game/state';
 
 const fuzzyMatch = (name: string, t: string) => {
   const n = name.toLowerCase();
@@ -22,10 +22,16 @@ const fuzzyMatch = (name: string, t: string) => {
   return qi === q.length;
 };
 
+const matchScore = (name: string, t: string) => {
+  const n = name.toLowerCase();
+  const q = t.toLowerCase();
+  if (n === q) return 0;
+  if (n.startsWith(q)) return 1;
+  return 2;
+};
+
 export const NavBar = (props: { className?: string }) => {
-  const [visibleCountries, setVisibleCountries] = useAtom(
-    revealedCountriesAtom,
-  );
+  const [guessedCountries, setGuessedCountries] = useAtom(guessedCountriesAtom);
 
   const [showAllCountries, setShowAllCountries] = useAtom(showAllCountriesAtom);
   const [showAllNames, setShowAllNames] = useAtom(showAllNamesAtom);
@@ -36,17 +42,19 @@ export const NavBar = (props: { className?: string }) => {
   const suggestions =
     term.length === 0
       ? []
-      : countries.filter(
-          ({ name }) =>
-            fuzzyMatch(name, term) &&
-            !visibleCountries.some((c) => c.name === name),
-        );
+      : countries
+          .filter(
+            ({ name }) =>
+              fuzzyMatch(name, term) &&
+              !guessedCountries.some((c) => c.name === name),
+          )
+          .sort((a, b) => matchScore(a.name, term) - matchScore(b.name, term));
 
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
   const onSelectCountry = (country: Country) => {
-    if (!visibleCountries.some((c) => c.id === country.id)) {
-      setVisibleCountries((prev) => [...prev, country]);
+    if (!guessedCountries.some((c) => c.id === country.id)) {
+      setGuessedCountries((prev) => [...prev, country]);
       setTerm('');
       inputRef.current?.focus();
       emitCenterCountries([country]);
@@ -145,7 +153,7 @@ export const NavBar = (props: { className?: string }) => {
           </div>
 
           <div className='flex gap-1 flex-wrap'>
-            {visibleCountries.map((country) => (
+            {guessedCountries.map((country) => (
               <button
                 key={country.id}
                 className='flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20'
