@@ -7,16 +7,17 @@ import {
   geoOrthographic,
   geoPath,
 } from 'd3-geo';
-import { countryGeoData, type Country } from './countries';
+import { countryGeoData } from './countries';
 import { onCenterCountries, type CenterCountriesHandler } from './globeEvents';
-import { atom, useStore } from 'jotai';
+import { useStore } from 'jotai';
 import { useEffect, useEffectEvent, useRef } from 'react';
 import {
   showAllCountriesAtom,
   revealedCountriesAtom,
   showAllNamesAtom,
+  hoveredIdAtom,
+  lastCenteredCountriesAtom,
 } from './atoms';
-import { useAtomValue } from 'jotai';
 
 const DEG = Math.PI / 180;
 const GLOBE_SIZE = 600;
@@ -45,18 +46,13 @@ const LAND_FILL = 'rgba(74, 166, 107, 0.69)';
 const LAND_HOVER_FILL = 'rgba(74, 166, 107, 0.70)';
 const LAND_CENTERED_FILL = 'rgba(74, 166, 107, 0.50)';
 
-const hoveredIdAtom = atom<string | undefined>();
-const lastCenteredCountriesAtom = atom<Country[] | undefined>();
-
-export const WorldMap = () => {
+export const Map = () => {
   const store = useStore();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rotX = useSpringValue(0, { config: rotationConfig });
   const rotY = useSpringValue(-20, { config: rotationConfig });
   const rotZ = useSpringValue(0, { config: rotationConfig });
   const scale = useSpringValue(DEFAULT_SCALE, { config: scaleConfig });
-
-  const showAllNames = useAtomValue(showAllNamesAtom);
 
   // CSS colors read once
   const colorsRef = useRef<{ surface: string; text: string } | null>(null);
@@ -122,6 +118,7 @@ export const WorldMap = () => {
 
     // Countries
     const revealed = store.get(revealedCountriesAtom);
+    const showNames = store.get(showAllNamesAtom);
     const showAll = store.get(showAllCountriesAtom);
     const hoveredId = store.get(hoveredIdAtom);
     const centeredCountries = store.get(lastCenteredCountriesAtom);
@@ -131,11 +128,11 @@ export const WorldMap = () => {
 
     const labelFeatureIds = new Set<string>();
 
-    if (hoveredId && showAllNames) {
+    if (hoveredId && showNames) {
       labelFeatureIds.add(hoveredId);
     }
 
-    if (showAllNames) {
+    if (showNames) {
       centeredCountries?.forEach((c) => labelFeatureIds.add(c.id));
     }
 

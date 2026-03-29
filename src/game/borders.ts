@@ -285,7 +285,7 @@ export const borders = {
     'Albania',
   ],
   Netherlands: ['Belgium', 'Germany'],
-  'Northern Cyprus': ['Cyprus'],
+  'Northern Cyprus': ['Cyprus', 'Turkey', 'Lebanon'], // ~75 km from Turkey, ~175 km from Lebanon
   Norway: ['Sweden', 'Finland', 'Russia'],
   Poland: [
     'Germany',
