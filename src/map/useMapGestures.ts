@@ -5,6 +5,7 @@ import {
   GLOBE_SIZE,
   hoveredIdAtom,
   lastCenteredCountriesAtom,
+  mouseGlobePosAtom,
   MAX_SCALE,
   MIN_SCALE,
   ROTATION_SENSITIVITY,
@@ -112,6 +113,8 @@ export const useMapGestures = ({
           }
         }
 
+        store.set(mouseGlobePosAtom, [mx, my]);
+
         if (found !== store.get(hoveredIdAtom)) {
           store.set(hoveredIdAtom, found);
           if (found) {
@@ -122,6 +125,7 @@ export const useMapGestures = ({
 
       onMouseLeave() {
         store.set(hoveredIdAtom, undefined);
+        store.set(mouseGlobePosAtom, undefined);
       },
     },
     { drag: { filterTaps: true } },

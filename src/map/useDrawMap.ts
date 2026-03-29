@@ -4,6 +4,7 @@ import {
   GLOBE_SIZE,
   hoveredIdAtom,
   lastCenteredCountriesAtom,
+  mouseGlobePosAtom,
   DEG,
   CENTROIDS,
 } from './state';
@@ -99,6 +100,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const showAll = store.get(showAllCountriesAtom);
     const hoveredId = store.get(hoveredIdAtom);
     const centeredCountries = store.get(lastCenteredCountriesAtom);
+    const mouseGlobePos = store.get(mouseGlobePosAtom);
 
     const viewLonRad = -rx * DEG;
     const viewLatRad = -ry * DEG;
@@ -162,9 +164,29 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
           (f) => String(f.id ?? '') === id,
         );
         if (!feature) continue;
-        const centroid = pathGen.centroid(feature);
-        if (isNaN(centroid[0]) || isNaN(centroid[1])) continue;
-        ctx.fillText(feature.properties.name, centroid[0], centroid[1]);
+
+        let x: number;
+        let y: number;
+
+        if (id === hoveredId && mouseGlobePos) {
+          x = mouseGlobePos[0];
+          y = mouseGlobePos[1] - 10;
+        } else {
+          const centroid = pathGen.centroid(feature);
+          if (isNaN(centroid[0]) || isNaN(centroid[1])) continue;
+          x = centroid[0];
+          y = centroid[1];
+        }
+
+        const name = feature.properties.name;
+
+        ctx.strokeStyle = `color-mix(in oklch, black 50%, transparent)`;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.strokeText(name, x, y);
+
+        ctx.fillStyle = colors.text;
+        ctx.fillText(name, x, y);
       }
     }
 

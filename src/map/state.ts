@@ -5,6 +5,7 @@ import type { AnimationConfig } from '@react-spring/web';
 
 export const hoveredIdAtom = atom<string | undefined>();
 export const lastCenteredCountriesAtom = atom<Country[] | undefined>();
+export const mouseGlobePosAtom = atom<[number, number] | undefined>();
 
 export const DEG = Math.PI / 180;
 export const GLOBE_SIZE = 600;
