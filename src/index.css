@@ -24,7 +24,7 @@
   --color-background: oklch(0.129 0.042 264.7); /* gray-950 */
   --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
   --color-surface: oklch(0.39 0.06 256.27);
-  --color-land: #4aa66bb0;
+  --color-land: #4aa66b;
 }
 
 @theme inline {

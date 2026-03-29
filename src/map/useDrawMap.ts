@@ -1,5 +1,5 @@
 import { geoOrthographic, geoPath } from 'd3-geo';
-import { useRef, useEffectEvent, type RefObject, useEffect } from 'react';
+import { useEffectEvent, type RefObject, useEffect } from 'react';
 import {
   GLOBE_SIZE,
   hoveredIdAtom,
@@ -16,10 +16,7 @@ import {
   showAllCountriesAtom,
   showAllNamesAtom,
 } from '../game/state';
-
-const LAND_FILL = 'rgba(74, 166, 107, 0.69)';
-const LAND_HOVER_FILL = 'rgba(74, 166, 107, 0.70)';
-const LAND_CENTERED_FILL = 'rgba(74, 166, 107, 0.50)';
+import { getColors } from './getColors';
 
 type Props = {
   scale: SpringValue<number>;
@@ -31,19 +28,6 @@ type Props = {
 
 export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
   const store = useStore();
-
-  // CSS colors read once
-  const colorsRef = useRef<{ surface: string; text: string } | null>(null);
-  const getColors = () => {
-    if (!colorsRef.current) {
-      const style = getComputedStyle(document.documentElement);
-      colorsRef.current = {
-        surface: style.getPropertyValue('--color-surface').trim(),
-        text: style.getPropertyValue('--color-text').trim(),
-      };
-    }
-    return colorsRef.current;
-  };
 
   const draw = useEffectEvent(() => {
     const canvas = canvasRef.current;
@@ -90,7 +74,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     pathGen({ type: 'Sphere' });
     ctx.fillStyle = colors.surface;
     ctx.fill();
-    ctx.strokeStyle = `color-mix(in oklch, ${colors.text} 30%, transparent)`;
+    ctx.strokeStyle = colors.globeBorder;
     ctx.lineWidth = 0.5;
     ctx.stroke();
 
@@ -117,7 +101,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       }
     });
 
-    ctx.strokeStyle = `color-mix(in oklch, ${colors.text} 50%, transparent)`;
+    ctx.strokeStyle = colors.countryBorder;
     ctx.lineWidth = 0.4;
 
     for (let i = 0; i < countryGeoData.features.length; i++) {
@@ -141,14 +125,12 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
       if (isGuessed) {
         ctx.fillStyle = isCentered
-          ? LAND_CENTERED_FILL
+          ? colors.landCentered
           : isHovered
-            ? LAND_HOVER_FILL
-            : LAND_FILL;
+            ? colors.landHover
+            : colors.land;
       } else {
-        ctx.fillStyle = isHovered
-          ? `color-mix(in oklch, ${colors.text} 15%, transparent)`
-          : `color-mix(in oklch, ${colors.text} 10%, transparent)`;
+        ctx.fillStyle = isHovered ? colors.unguessedHover : colors.unguessed;
       }
       ctx.fill();
       ctx.stroke();
@@ -182,7 +164,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
         const name = feature.properties.name;
 
-        ctx.strokeStyle = `color-mix(in oklch, black 50%, transparent)`;
+        ctx.strokeStyle = colors.labelOutline;
         ctx.lineWidth = 2;
         ctx.lineJoin = 'round';
         ctx.strokeText(name, x, y);
