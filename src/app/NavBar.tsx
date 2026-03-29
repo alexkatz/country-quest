@@ -10,7 +10,7 @@ import {
   showAllNamesAtom,
 } from '../map/atoms';
 import { Button } from '../layout/common/Button';
-import { Eye, EyeClosed } from 'lucide-react';
+import { Square, SquareCheck } from 'lucide-react';
 
 const fuzzyMatch = (name: string, t: string) => {
   const n = name.toLowerCase();
@@ -133,14 +133,14 @@ export const NavBar = (props: { className?: string }) => {
               className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
               onClick={() => setShowAllCountries((prev) => !prev)}
             >
-              {showAllCountries ? <Eye /> : <EyeClosed />} Borders
+              {showAllCountries ? <SquareCheck /> : <Square />} All
             </Button>
 
             <Button
-              className='self-stretch bg-background/40 backdrop-blur-2xl'
+              className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
               onClick={() => setShowAllNames((prev) => !prev)}
             >
-              {showAllNames ? <Eye /> : <EyeClosed />} Names
+              {showAllNames ? <SquareCheck /> : <Square />} Names
             </Button>
           </div>
 

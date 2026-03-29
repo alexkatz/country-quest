@@ -23,7 +23,7 @@ const GLOBE_SIZE = 600;
 const MIN_SCALE = 100;
 const MAX_SCALE = 1700;
 const ROTATION_SENSITIVITY = 0.15;
-const ZOOM_SENSITIVITY = 0.8;
+const ZOOM_SENSITIVITY = 100;
 const DEFAULT_SCALE = 250;
 
 const CENTROIDS = countryGeoData.features.map((f) => {
