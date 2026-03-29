@@ -111,9 +111,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       labelFeatureIds.add(hoveredId);
     }
 
-    if (showNames) {
-      centeredCountries?.forEach((c) => labelFeatureIds.add(c.id));
-    }
+    centeredCountries?.forEach((c) => {
+      if (showNames || guessed.some((g) => g.id === c.id)) {
+        labelFeatureIds.add(c.id);
+      }
+    });
 
     ctx.strokeStyle = `color-mix(in oklch, ${colors.text} 50%, transparent)`;
     ctx.lineWidth = 0.4;
