@@ -7,7 +7,8 @@ import {
 } from './state';
 import { useMapGestures } from './useMapGestures';
 import { useDrawMap } from './useDrawMap';
-import { useHandleCenterCountries } from './useHandleCenterCountries';
+import { useOnCenterCountries } from './useOnCenterCountries';
+import { useOnGuessCountry } from './useOnGuessCountry';
 
 export const Map = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,9 +20,11 @@ export const Map = () => {
     canvasRef,
   };
 
-  const bindGestures = useMapGestures(mapInfo);
   useDrawMap(mapInfo);
-  useHandleCenterCountries(mapInfo);
+  useOnCenterCountries(mapInfo);
+  useOnGuessCountry();
+
+  const bindGestures = useMapGestures(mapInfo);
 
   return (
     <div className='relative flex h-full w-full items-center justify-center overflow-hidden touch-none'>

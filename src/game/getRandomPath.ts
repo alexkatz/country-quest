@@ -14,32 +14,6 @@ const getStartingCountry = (name?: string) => {
   return allCountries[randomIndex];
 };
 
-const findPath = (currentPath: string[], length: number): string[] | null => {
-  if (currentPath.length >= length) {
-    return currentPath;
-  }
-
-  const lastCountry = currentPath[currentPath.length - 1];
-  const neighbors = borders[lastCountry as keyof typeof borders].filter(
-    (country) => !currentPath.includes(country) && hasNeighbors(country),
-  );
-
-  if (neighbors.length === 0) {
-    return null;
-  }
-
-  // Shuffle so each attempt explores neighbors in a different order
-  const shuffled = [...neighbors].sort(() => Math.random() - 0.5);
-
-  for (const nextCountry of shuffled) {
-    const result = findPath([...currentPath, nextCountry], length);
-    if (result !== null) return result;
-  }
-
-  // All neighbors led to dead ends — backtrack
-  return null;
-};
-
 type Props = {
   length: number;
   startingCountry?: keyof typeof borders;
@@ -50,12 +24,44 @@ export const getRandomPath = ({
   startingCountry,
 }: Props): Country[] => {
   const start = getStartingCountry(startingCountry);
-  const result = findPath([start], length);
 
-  if (result === null) {
-    // Start country is in a connected component smaller than length — retry with a different one
+  const parent = new Map<string, string | null>([[start, null]]);
+  const queue: [string, number][] = [[start, 0]];
+  const candidates: string[] = [];
+
+  while (queue.length > 0) {
+    const [current, dist] = queue.shift()!;
+
+    if (dist === length - 1) {
+      candidates.push(current);
+      continue;
+    }
+
+    const neighbors = [
+      ...(borders[current as keyof typeof borders] ?? []),
+    ].sort(() => Math.random() - 0.5);
+
+    for (const neighbor of neighbors) {
+      if (!parent.has(neighbor)) {
+        parent.set(neighbor, current);
+        queue.push([neighbor, dist + 1]);
+      }
+    }
+  }
+
+  if (candidates.length === 0) {
+    // Start country's connected component is smaller than length — retry
     return getRandomPath({ length });
   }
 
-  return result.map((name) => countryByName.get(name)!);
+  const end = candidates[Math.floor(Math.random() * candidates.length)];
+
+  const path: string[] = [];
+  let node: string | null = end;
+  while (node !== null) {
+    path.unshift(node);
+    node = parent.get(node) ?? null;
+  }
+
+  return path.map((name) => countryByName.get(name)!);
 };

@@ -80,6 +80,7 @@ if (franceFeature?.geometry.type === 'MultiPolygon') {
 export const countries = countryGeoData.features.map((feature) => ({
   id: feature.id as string,
   name: feature.properties.name,
+  feature,
 }));
 
 export type Country = (typeof countries)[number];

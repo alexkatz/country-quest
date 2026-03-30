@@ -10,7 +10,10 @@ import {
   showAllCountriesAtom,
   showAllNamesAtom,
   guessedCountriesAtom,
+  startCountryAtom,
+  endCountryAtom,
 } from '../game/state';
+import { useAtomValue } from 'jotai';
 
 const fuzzyMatch = (name: string, t: string) => {
   const n = name.toLowerCase();
@@ -32,6 +35,8 @@ const matchScore = (name: string, t: string) => {
 
 export const NavBar = (props: { className?: string }) => {
   const [guessedCountries, setGuessedCountries] = useAtom(guessedCountriesAtom);
+  const startCountry = useAtomValue(startCountryAtom);
+  const endCountry = useAtomValue(endCountryAtom);
 
   const [showAllCountries, setShowAllCountries] = useAtom(showAllCountriesAtom);
   const [showAllNames, setShowAllNames] = useAtom(showAllNamesAtom);
@@ -46,18 +51,17 @@ export const NavBar = (props: { className?: string }) => {
           .filter(
             ({ name }) =>
               fuzzyMatch(name, term) &&
-              !guessedCountries.some((c) => c.name === name),
+              !guessedCountries.some(c => c.name === name),
           )
           .sort((a, b) => matchScore(a.name, term) - matchScore(b.name, term));
 
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
-  const onSelectCountry = (country: Country) => {
-    if (!guessedCountries.some((c) => c.id === country.id)) {
-      setGuessedCountries((prev) => [...prev, country]);
+  const onGuessCountry = (country: Country) => {
+    if (!guessedCountries.some(c => c.id === country.id)) {
+      setGuessedCountries(prev => [...prev, country]);
       setTerm('');
       inputRef.current?.focus();
-      emitCenterCountries([country]);
     }
   };
 
@@ -79,7 +83,7 @@ export const NavBar = (props: { className?: string }) => {
       ) {
         event.preventDefault();
         event.stopPropagation();
-        setSelectedSuggestionIndex((prev) =>
+        setSelectedSuggestionIndex(prev =>
           Math.min(prev + 1, suggestions.length - 1),
         );
       } else if (
@@ -88,13 +92,13 @@ export const NavBar = (props: { className?: string }) => {
       ) {
         event.preventDefault();
         event.stopPropagation();
-        setSelectedSuggestionIndex((prev) => Math.max(prev - 1, 0));
+        setSelectedSuggestionIndex(prev => Math.max(prev - 1, 0));
       } else if (event.key === 'Enter') {
         event.preventDefault();
         event.stopPropagation();
         const country = suggestions[selectedSuggestionIndex];
         if (country) {
-          onSelectCountry(country);
+          onGuessCountry(country);
         }
       }
     },
@@ -113,7 +117,7 @@ export const NavBar = (props: { className?: string }) => {
                     'p-1 w-full flex items-center justify-start hover:bg-text/20 rounded-lg cursor-pointer',
                     i === selectedSuggestionIndex && 'bg-text/20',
                   )}
-                  onClick={() => onSelectCountry(country)}
+                  onClick={() => onGuessCountry(country)}
                 >
                   {country.name}
                 </button>
@@ -128,7 +132,7 @@ export const NavBar = (props: { className?: string }) => {
               className='bg-background/40 backdrop-blur-2xl flex-1 p-2 border border-text/30 shadow-sm/20 rounded-lg'
               placeholder='search for a country...'
               value={term}
-              onChange={(e) => {
+              onChange={e => {
                 setSelectedSuggestionIndex(0);
                 setTerm(e.target.value);
               }}
@@ -139,30 +143,32 @@ export const NavBar = (props: { className?: string }) => {
 
             <Button
               className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
-              onClick={() => setShowAllCountries((prev) => !prev)}
+              onClick={() => setShowAllCountries(prev => !prev)}
             >
               {showAllCountries ? <SquareCheck /> : <Square />} All
             </Button>
 
             <Button
               className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
-              onClick={() => setShowAllNames((prev) => !prev)}
+              onClick={() => setShowAllNames(prev => !prev)}
             >
               {showAllNames ? <SquareCheck /> : <Square />} Names
             </Button>
           </div>
 
           <div className='flex gap-1 flex-wrap'>
-            {guessedCountries.map((country) => (
-              <button
-                key={country.id}
-                className='flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20'
-                onMouseEnter={() => emitCenterCountries([country])}
-                onClick={() => emitCenterCountries([country])}
-              >
-                {country.name}
-              </button>
-            ))}
+            {guessedCountries
+              .concat([startCountry, endCountry])
+              .map(country => (
+                <button
+                  key={country.id}
+                  className='flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20'
+                  onMouseEnter={() => emitCenterCountries([country])}
+                  onClick={() => emitCenterCountries([country])}
+                >
+                  {country.name}
+                </button>
+              ))}
           </div>
         </div>
       </div>

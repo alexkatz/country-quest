@@ -18,17 +18,17 @@ type Props = {
   scale: SpringValue<number>;
 };
 
-export const useHandleCenterCountries = ({ rotX, rotY, scale }: Props) => {
+export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
   const store = useStore();
 
-  const centerCountries = useEffectEvent(((countries) => {
+  const centerCountries = useEffectEvent((countries => {
     const indices = countries
-      .map((c) => countryGeoData.features.findIndex((f) => f.id === c.id))
-      .filter((i) => i >= 0);
+      .map(c => countryGeoData.features.findIndex(f => f.id === c.id))
+      .filter(i => i >= 0);
 
     if (indices.length === 0) return;
 
-    const centroids = indices.map((i) => CENTROIDS[i]);
+    const centroids = indices.map(i => CENTROIDS[i]);
 
     let x = 0,
       y = 0,
@@ -47,7 +47,7 @@ export const useHandleCenterCountries = ({ rotX, rotY, scale }: Props) => {
 
     const centerLonRad = centerLon * DEG;
     const centerLatRad = centerLat * DEG;
-    const boundaryPoints = indices.flatMap((i) => {
+    const boundaryPoints = indices.flatMap(i => {
       const [[west, south], [east, north]] = geoBounds(
         countryGeoData.features[i],
       );

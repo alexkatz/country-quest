@@ -2,19 +2,21 @@ import { geoOrthographic, geoPath } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
 import {
   GLOBE_SIZE,
-  hoveredIdAtom,
+  hoveredCountryAtom,
   lastCenteredCountriesAtom,
   mouseGlobePosAtom,
   DEG,
   CENTROIDS,
 } from './state';
-import { countryGeoData } from './countries';
+import { countryGeoData, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import {
+  endCountryAtom,
   guessedCountriesAtom,
   showAllCountriesAtom,
   showAllNamesAtom,
+  startCountryAtom,
 } from '../game/state';
 import { getColors } from './getColors';
 
@@ -79,25 +81,33 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.stroke();
 
     // Countries
-    const guessed = store.get(guessedCountriesAtom);
+    const guessedCountries = store.get(guessedCountriesAtom);
+    const startCountry = store.get(startCountryAtom);
+    const endCountry = store.get(endCountryAtom);
     const showNames = store.get(showAllNamesAtom);
-    const showAll = store.get(showAllCountriesAtom);
-    const hoveredId = store.get(hoveredIdAtom);
+    const showAllCountries = store.get(showAllCountriesAtom);
+    const hoveredCountry = store.get(hoveredCountryAtom);
     const centeredCountries = store.get(lastCenteredCountriesAtom);
     const mouseGlobePos = store.get(mouseGlobePosAtom);
 
     const viewLonRad = -rx * DEG;
     const viewLatRad = -ry * DEG;
 
-    const labelFeatureIds = new Set<string>();
+    const labelCountries = new Set<Country>();
 
-    if (hoveredId && (showNames || guessed.some((c) => c.id === hoveredId))) {
-      labelFeatureIds.add(hoveredId);
+    if (
+      hoveredCountry &&
+      (showNames ||
+        guessedCountries.some(c => c.id === hoveredCountry.id) ||
+        hoveredCountry.id === startCountry?.id ||
+        hoveredCountry.id === endCountry?.id)
+    ) {
+      labelCountries.add(hoveredCountry);
     }
 
-    centeredCountries?.forEach((c) => {
-      if (showNames || guessed.some((g) => g.id === c.id)) {
-        labelFeatureIds.add(c.id);
+    centeredCountries?.forEach(c => {
+      if (showNames || guessedCountries.length === 0) {
+        labelCountries.add(c);
       }
     });
 
@@ -106,9 +116,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
     for (let i = 0; i < countryGeoData.features.length; i++) {
       const feature = countryGeoData.features[i];
-      const isGuessed = guessed.some((c) => c.id === feature.id);
+      const isGuessed = guessedCountries.some(c => c.id === feature.id);
+      const isStart = feature.id === startCountry?.id;
+      const isEnd = feature.id === endCountry?.id;
 
-      if (!showAll && !isGuessed) continue;
+      if (!showAllCountries && !isGuessed && !isStart && !isEnd) continue;
 
       const [lonRad, latRad] = CENTROIDS[i];
       const dot =
@@ -117,18 +129,17 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       if (dot < -0.1) continue;
 
       const id = String(feature.id ?? '');
-      const isHovered = hoveredId === id;
-      const isCentered = centeredCountries?.some((c) => c.id === id) ?? false;
+      const isHovered = hoveredCountry?.id === id;
+      const isCentered = centeredCountries?.some(c => c.id === id) ?? false;
 
       ctx.beginPath();
       pathGen(feature);
 
-      if (isGuessed) {
-        ctx.fillStyle = isCentered
-          ? colors.landCentered
-          : isHovered
-            ? colors.landHover
-            : colors.land;
+      if (isStart || isEnd) {
+        ctx.fillStyle = colors.terminal;
+      } else if (isGuessed) {
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.landHover : colors.land;
       } else {
         ctx.fillStyle = isHovered ? colors.unguessedHover : colors.unguessed;
       }
@@ -137,22 +148,19 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     }
 
     // Labels for hovered / centered countries
-    if (labelFeatureIds.size > 0) {
+    if (labelCountries.size > 0) {
       ctx.font = 'medium 5px Geist, system-ui, sans-serif';
       ctx.fillStyle = colors.text;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
 
-      for (const id of labelFeatureIds) {
-        const feature = countryGeoData.features.find(
-          (f) => String(f.id ?? '') === id,
-        );
-        if (!feature) continue;
+      for (const country of labelCountries) {
+        const feature = country.feature;
 
         let x: number;
         let y: number;
 
-        if (id === hoveredId && mouseGlobePos) {
+        if (country.id === hoveredCountry?.id && mouseGlobePos) {
           x = mouseGlobePos[0];
           y = mouseGlobePos[1] - 10;
         } else {

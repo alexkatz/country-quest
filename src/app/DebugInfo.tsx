@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai';
 import {
+  currentPathAtom,
   endCountryAtom,
   guessedCountriesAtom,
   maxPathSizeAtom,
@@ -30,6 +31,7 @@ export const DebugInfo = () => {
 
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
+  const currentPath = useAtomValue(currentPathAtom);
 
   const guessedCountries = useAtomValue(guessedCountriesAtom);
 
@@ -44,6 +46,11 @@ export const DebugInfo = () => {
       <InfoItem
         label='guessedCountries'
         value={guessedCountries.map((c) => c.name).join(', ')}
+      />
+
+      <InfoItem
+        label='currentPath'
+        value={currentPath.map((c) => c.name).join(', ')}
       />
     </div>
   );

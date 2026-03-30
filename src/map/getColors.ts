@@ -3,7 +3,7 @@ type Colors = {
   text: string;
   land: string;
   landHover: string;
-  landCentered: string;
+  terminal: string;
   globeBorder: string;
   countryBorder: string;
   unguessed: string;
@@ -19,13 +19,14 @@ export const getColors = (): Colors => {
   const style = getComputedStyle(document.documentElement);
   const text = style.getPropertyValue('--color-text').trim();
   const land = style.getPropertyValue('--color-land').trim();
+  const terminal = style.getPropertyValue('--color-terminal').trim();
 
   cached = {
     surface: style.getPropertyValue('--color-surface').trim(),
     text,
     land: `color-mix(in srgb, ${land} 69%, transparent)`,
-    landHover: `color-mix(in srgb, ${land} 70%, transparent)`,
-    landCentered: `color-mix(in srgb, ${land} 50%, transparent)`,
+    landHover: `color-mix(in srgb, ${land} 50%, transparent)`,
+    terminal: `color-mix(in oklch, ${terminal} 75%, transparent)`,
     globeBorder: `color-mix(in oklch, ${text} 30%, transparent)`,
     countryBorder: `color-mix(in oklch, ${text} 50%, transparent)`,
     unguessed: `color-mix(in oklch, ${text} 10%, transparent)`,

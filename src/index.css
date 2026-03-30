@@ -25,6 +25,7 @@
   --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
   --color-surface: oklch(0.39 0.06 256.27);
   --color-land: #4aa66b;
+  --color-terminal: oklch(0.78 0.17 75); /* amber */
 }
 
 @theme inline {
@@ -33,6 +34,7 @@
   --color-text: var(--color-text);
   --color-surface: var(--color-surface);
   --color-land: var(--color-land);
+  --color-terminal: var(--color-terminal);
 }
 
 html {

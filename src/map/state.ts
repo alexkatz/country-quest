@@ -3,7 +3,7 @@ import { countryGeoData, type Country } from './countries';
 import { geoCentroid } from 'd3-geo';
 import type { AnimationConfig } from '@react-spring/web';
 
-export const hoveredIdAtom = atom<string | undefined>();
+export const hoveredCountryAtom = atom<Country | undefined>();
 export const lastCenteredCountriesAtom = atom<Country[] | undefined>();
 export const mouseGlobePosAtom = atom<[number, number] | undefined>();
 

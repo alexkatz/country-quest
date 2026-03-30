@@ -3,7 +3,7 @@ import { useStore } from 'jotai';
 import {
   DEFAULT_SCALE,
   GLOBE_SIZE,
-  hoveredIdAtom,
+  hoveredCountryAtom,
   lastCenteredCountriesAtom,
   mouseGlobePosAtom,
   MAX_SCALE,
@@ -14,8 +14,14 @@ import {
 import type { SpringValue } from '@react-spring/web';
 import type { RefObject } from 'react';
 import { geoContains, geoOrthographic } from 'd3-geo';
-import { countryGeoData } from './countries';
-import { guessedCountriesAtom, showAllCountriesAtom } from '../game/state';
+import { countryGeoData, type Country } from './countries';
+import {
+  endCountryAtom,
+  guessedCountriesAtom,
+  showAllCountriesAtom,
+  startCountryAtom,
+} from '../game/state';
+import { countryByName } from '../game/countryByName';
 
 type Props = {
   rotX: SpringValue<number>;
@@ -39,7 +45,7 @@ export const useMapGestures = ({
         if (tap) return;
 
         store.set(lastCenteredCountriesAtom, undefined);
-        store.set(hoveredIdAtom, undefined);
+        store.set(hoveredCountryAtom, undefined);
 
         const start = first
           ? [rotX.get(), rotY.get(), rotZ.get()]
@@ -99,15 +105,19 @@ export const useMapGestures = ({
         const lonLat = projection.invert?.([mx, my]);
         const guessed = store.get(guessedCountriesAtom);
         const showAll = store.get(showAllCountriesAtom);
+        const startCountry = store.get(startCountryAtom);
+        const endCountry = store.get(endCountryAtom);
 
-        let found: string | undefined;
+        let found: Country | undefined;
         if (lonLat) {
           for (let i = countryGeoData.features.length - 1; i >= 0; i--) {
             const feature = countryGeoData.features[i];
-            const isRevealed = guessed.some((c) => c.id === feature.id);
-            if (!showAll && !isRevealed) continue;
+            const isGuessed = guessed.some(c => c.id === feature.id);
+            const isTerminal =
+              feature.id === startCountry?.id || feature.id === endCountry?.id;
+            if (!showAll && !isGuessed && !isTerminal) continue;
             if (geoContains(feature, lonLat)) {
-              found = String(feature.id ?? '');
+              found = countryByName.get(feature.properties.name);
               break;
             }
           }
@@ -115,8 +125,8 @@ export const useMapGestures = ({
 
         store.set(mouseGlobePosAtom, [mx, my]);
 
-        if (found !== store.get(hoveredIdAtom)) {
-          store.set(hoveredIdAtom, found);
+        if (found !== store.get(hoveredCountryAtom)) {
+          store.set(hoveredCountryAtom, found);
           if (found) {
             store.set(lastCenteredCountriesAtom, undefined);
           }
@@ -124,7 +134,7 @@ export const useMapGestures = ({
       },
 
       onMouseLeave() {
-        store.set(hoveredIdAtom, undefined);
+        store.set(hoveredCountryAtom, undefined);
         store.set(mouseGlobePosAtom, undefined);
       },
     },
