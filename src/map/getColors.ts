@@ -6,8 +6,8 @@ type Colors = {
   terminal: string;
   globeBorder: string;
   countryBorder: string;
-  unguessed: string;
-  unguessedHover: string;
+  unrevealed: string;
+  unrevealedHover: string;
   labelOutline: string;
 };
 
@@ -29,8 +29,8 @@ export const getColors = (): Colors => {
     terminal: `color-mix(in oklch, ${terminal} 75%, transparent)`,
     globeBorder: `color-mix(in oklch, ${text} 30%, transparent)`,
     countryBorder: `color-mix(in oklch, ${text} 50%, transparent)`,
-    unguessed: `color-mix(in oklch, ${text} 10%, transparent)`,
-    unguessedHover: `color-mix(in oklch, ${text} 15%, transparent)`,
+    unrevealed: `color-mix(in oklch, ${text} 10%, transparent)`,
+    unrevealedHover: `color-mix(in oklch, ${text} 15%, transparent)`,
     labelOutline: 'color-mix(in oklch, black 50%, transparent)',
   };
 

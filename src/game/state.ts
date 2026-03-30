@@ -15,7 +15,7 @@ export const startCountryAtom = atom(INITIAL_PATH.at(0)!);
 export const endCountryAtom = atom(INITIAL_PATH.at(-1)!);
 export const currentPathAtom = atom(INITIAL_PATH);
 
-export const guessedCountriesAtom = atom<Country[]>([]);
+export const revealedCountriesAtom = atom<Country[]>([]);
 
 export const showAllNamesAtom = atomWithStorage(
   'show-all-names',

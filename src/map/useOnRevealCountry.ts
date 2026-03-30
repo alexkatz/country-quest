@@ -2,20 +2,20 @@ import { useStore } from 'jotai';
 import { useEffect } from 'react';
 import {
   endCountryAtom,
-  guessedCountriesAtom,
+  revealedCountriesAtom,
   startCountryAtom,
 } from '../game/state';
 import { emitCenterCountries } from './globeEvents';
 
-export const useOnGuessCountry = () => {
+export const useOnRevealCountry = () => {
   const store = useStore();
 
   useEffect(() => {
-    return store.sub(guessedCountriesAtom, () => {
+    return store.sub(revealedCountriesAtom, () => {
       const startCountry = store.get(startCountryAtom);
       const endCountry = store.get(endCountryAtom);
-      const guessedCountries = store.get(guessedCountriesAtom);
-      emitCenterCountries([startCountry, endCountry, ...guessedCountries]);
+      const revealedCountries = store.get(revealedCountriesAtom);
+      emitCenterCountries([startCountry, endCountry, ...revealedCountries]);
     });
   }, [store]);
 };

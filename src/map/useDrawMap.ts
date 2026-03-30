@@ -13,7 +13,7 @@ import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import {
   endCountryAtom,
-  guessedCountriesAtom,
+  revealedCountriesAtom,
   showAllCountriesAtom,
   showAllNamesAtom,
   startCountryAtom,
@@ -81,7 +81,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.stroke();
 
     // Countries
-    const guessedCountries = store.get(guessedCountriesAtom);
+    const revealedCountries = store.get(revealedCountriesAtom);
     const startCountry = store.get(startCountryAtom);
     const endCountry = store.get(endCountryAtom);
     const showNames = store.get(showAllNamesAtom);
@@ -98,7 +98,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     if (
       hoveredCountry &&
       (showNames ||
-        guessedCountries.some(c => c.id === hoveredCountry.id) ||
+        revealedCountries.some(c => c.id === hoveredCountry.id) ||
         hoveredCountry.id === startCountry?.id ||
         hoveredCountry.id === endCountry?.id)
     ) {
@@ -106,7 +106,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     }
 
     centeredCountries?.forEach(c => {
-      if (showNames || guessedCountries.length === 0) {
+      if (showNames || revealedCountries.length === 0) {
         labelCountries.add(c);
       }
     });
@@ -116,11 +116,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
     for (let i = 0; i < countryGeoData.features.length; i++) {
       const feature = countryGeoData.features[i];
-      const isGuessed = guessedCountries.some(c => c.id === feature.id);
+      const isRevealed = revealedCountries.some(c => c.id === feature.id);
       const isStart = feature.id === startCountry?.id;
       const isEnd = feature.id === endCountry?.id;
 
-      if (!showAllCountries && !isGuessed && !isStart && !isEnd) continue;
+      if (!showAllCountries && !isRevealed && !isStart && !isEnd) continue;
 
       const [lonRad, latRad] = CENTROIDS[i];
       const dot =
@@ -137,11 +137,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
       if (isStart || isEnd) {
         ctx.fillStyle = colors.terminal;
-      } else if (isGuessed) {
+      } else if (isRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.landHover : colors.land;
       } else {
-        ctx.fillStyle = isHovered ? colors.unguessedHover : colors.unguessed;
+        ctx.fillStyle = isHovered ? colors.unrevealedHover : colors.unrevealed;
       }
       ctx.fill();
       ctx.stroke();

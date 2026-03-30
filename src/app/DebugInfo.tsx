@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import {
   currentPathAtom,
   endCountryAtom,
-  guessedCountriesAtom,
+  revealedCountriesAtom,
   maxPathSizeAtom,
   roundAtom,
   showDebugInfoAtom,
@@ -33,7 +33,7 @@ export const DebugInfo = () => {
   const endCountry = useAtomValue(endCountryAtom);
   const currentPath = useAtomValue(currentPathAtom);
 
-  const guessedCountries = useAtomValue(guessedCountriesAtom);
+  const revealedCountries = useAtomValue(revealedCountriesAtom);
 
   return !showDebInfo ? null : (
     <div className='absolute top-2 left-2 rounded-lg backdrop-blur-2xl border border-text/30 shadow-sm/20 bg-text-10 p-2 z-50'>
@@ -44,8 +44,8 @@ export const DebugInfo = () => {
       <InfoItem label='endCountry' value={endCountry.name} />
 
       <InfoItem
-        label='guessedCountries'
-        value={guessedCountries.map((c) => c.name).join(', ')}
+        label='revealedCountries'
+        value={revealedCountries.map((c) => c.name).join(', ')}
       />
 
       <InfoItem

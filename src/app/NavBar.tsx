@@ -9,7 +9,7 @@ import { Square, SquareCheck } from 'lucide-react';
 import {
   showAllCountriesAtom,
   showAllNamesAtom,
-  guessedCountriesAtom,
+  revealedCountriesAtom,
   startCountryAtom,
   endCountryAtom,
 } from '../game/state';
@@ -34,7 +34,7 @@ const matchScore = (name: string, t: string) => {
 };
 
 export const NavBar = (props: { className?: string }) => {
-  const [guessedCountries, setGuessedCountries] = useAtom(guessedCountriesAtom);
+  const [revealedCountries, setRevealedCountries] = useAtom(revealedCountriesAtom);
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
 
@@ -51,15 +51,15 @@ export const NavBar = (props: { className?: string }) => {
           .filter(
             ({ name }) =>
               fuzzyMatch(name, term) &&
-              !guessedCountries.some(c => c.name === name),
+              !revealedCountries.some(c => c.name === name),
           )
           .sort((a, b) => matchScore(a.name, term) - matchScore(b.name, term));
 
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
-  const onGuessCountry = (country: Country) => {
-    if (!guessedCountries.some(c => c.id === country.id)) {
-      setGuessedCountries(prev => [...prev, country]);
+  const onRevealCountry = (country: Country) => {
+    if (!revealedCountries.some(c => c.id === country.id)) {
+      setRevealedCountries(prev => [...prev, country]);
       setTerm('');
       inputRef.current?.focus();
     }
@@ -98,7 +98,7 @@ export const NavBar = (props: { className?: string }) => {
         event.stopPropagation();
         const country = suggestions[selectedSuggestionIndex];
         if (country) {
-          onGuessCountry(country);
+          onRevealCountry(country);
         }
       }
     },
@@ -117,7 +117,7 @@ export const NavBar = (props: { className?: string }) => {
                     'p-1 w-full flex items-center justify-start hover:bg-text/20 rounded-lg cursor-pointer',
                     i === selectedSuggestionIndex && 'bg-text/20',
                   )}
-                  onClick={() => onGuessCountry(country)}
+                  onClick={() => onRevealCountry(country)}
                 >
                   {country.name}
                 </button>
@@ -157,7 +157,7 @@ export const NavBar = (props: { className?: string }) => {
           </div>
 
           <div className='flex gap-1 flex-wrap'>
-            {guessedCountries
+            {revealedCountries
               .concat([startCountry, endCountry])
               .map(country => (
                 <button

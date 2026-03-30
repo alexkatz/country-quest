@@ -17,7 +17,7 @@ import { geoContains, geoOrthographic } from 'd3-geo';
 import { countryGeoData, type Country } from './countries';
 import {
   endCountryAtom,
-  guessedCountriesAtom,
+  revealedCountriesAtom,
   showAllCountriesAtom,
   startCountryAtom,
 } from '../game/state';
@@ -103,7 +103,7 @@ export const useMapGestures = ({
           .rotate([rx, ry, rz]);
 
         const lonLat = projection.invert?.([mx, my]);
-        const guessed = store.get(guessedCountriesAtom);
+        const revealed = store.get(revealedCountriesAtom);
         const showAll = store.get(showAllCountriesAtom);
         const startCountry = store.get(startCountryAtom);
         const endCountry = store.get(endCountryAtom);
@@ -112,10 +112,10 @@ export const useMapGestures = ({
         if (lonLat) {
           for (let i = countryGeoData.features.length - 1; i >= 0; i--) {
             const feature = countryGeoData.features[i];
-            const isGuessed = guessed.some(c => c.id === feature.id);
+            const isRevealed = revealed.some(c => c.id === feature.id);
             const isTerminal =
               feature.id === startCountry?.id || feature.id === endCountry?.id;
-            if (!showAll && !isGuessed && !isTerminal) continue;
+            if (!showAll && !isRevealed && !isTerminal) continue;
             if (geoContains(feature, lonLat)) {
               found = countryByName.get(feature.properties.name);
               break;

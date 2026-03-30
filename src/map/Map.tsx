@@ -8,7 +8,7 @@ import {
 import { useMapGestures } from './useMapGestures';
 import { useDrawMap } from './useDrawMap';
 import { useOnCenterCountries } from './useOnCenterCountries';
-import { useOnGuessCountry } from './useOnGuessCountry';
+import { useOnRevealCountry } from './useOnRevealCountry';
 
 export const Map = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -22,7 +22,7 @@ export const Map = () => {
 
   useDrawMap(mapInfo);
   useOnCenterCountries(mapInfo);
-  useOnGuessCountry();
+  useOnRevealCountry();
 
   const bindGestures = useMapGestures(mapInfo);
 
