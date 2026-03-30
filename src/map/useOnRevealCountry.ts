@@ -14,8 +14,7 @@ export const useOnRevealCountry = () => {
     return store.sub(revealedCountriesAtom, () => {
       const startCountry = store.get(startCountryAtom);
       const endCountry = store.get(endCountryAtom);
-      const revealedCountries = store.get(revealedCountriesAtom);
-      emitCenterCountries([startCountry, endCountry, ...revealedCountries]);
+      emitCenterCountries([startCountry, endCountry]);
     });
   }, [store]);
 };

@@ -4,6 +4,7 @@ type Colors = {
   land: string;
   landHover: string;
   terminal: string;
+  connected: string;
   globeBorder: string;
   countryBorder: string;
   unrevealed: string;
@@ -20,10 +21,12 @@ export const getColors = (): Colors => {
   const text = style.getPropertyValue('--color-text').trim();
   const land = style.getPropertyValue('--color-land').trim();
   const terminal = style.getPropertyValue('--color-terminal').trim();
+  const connected = style.getPropertyValue('--color-connected').trim();
 
   cached = {
     surface: style.getPropertyValue('--color-surface').trim(),
     text,
+    connected,
     land: `color-mix(in srgb, ${land} 69%, transparent)`,
     landHover: `color-mix(in srgb, ${land} 50%, transparent)`,
     terminal: `color-mix(in oklch, ${terminal} 75%, transparent)`,

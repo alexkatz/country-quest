@@ -221,7 +221,7 @@ export const borders = {
   ],
   Cyprus: ['Northern Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
   Czechia: ['Germany', 'Austria', 'Slovakia', 'Poland'],
-  Denmark: ['Germany'],
+  Denmark: ['Germany', 'Sweden'],
   Estonia: ['Latvia', 'Russia'],
   Finland: ['Sweden', 'Norway', 'Russia'],
   France: [
@@ -330,7 +330,7 @@ export const borders = {
   Slovakia: ['Czechia', 'Austria', 'Hungary', 'Ukraine', 'Poland'],
   Slovenia: ['Austria', 'Italy', 'Hungary', 'Croatia'],
   Spain: ['Portugal', 'France', 'Andorra', 'Morocco'],
-  Sweden: ['Norway', 'Finland'],
+  Sweden: ['Norway', 'Finland', 'Denmark'],
   Switzerland: ['France', 'Germany', 'Austria', 'Liechtenstein', 'Italy'],
   Ukraine: [
     'Poland',

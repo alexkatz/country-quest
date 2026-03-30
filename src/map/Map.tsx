@@ -9,6 +9,8 @@ import { useMapGestures } from './useMapGestures';
 import { useDrawMap } from './useDrawMap';
 import { useOnCenterCountries } from './useOnCenterCountries';
 import { useOnRevealCountry } from './useOnRevealCountry';
+import { useAtomValue } from 'jotai';
+import { connectedRevealedCountriesAtom } from '../game/state';
 
 export const Map = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,6 +25,8 @@ export const Map = () => {
   useDrawMap(mapInfo);
   useOnCenterCountries(mapInfo);
   useOnRevealCountry();
+
+  useAtomValue(connectedRevealedCountriesAtom);
 
   const bindGestures = useMapGestures(mapInfo);
 

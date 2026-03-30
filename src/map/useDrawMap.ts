@@ -12,6 +12,7 @@ import { countryGeoData, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import {
+  connectedRevealedCountriesAtom,
   endCountryAtom,
   revealedCountriesAtom,
   showAllCountriesAtom,
@@ -90,6 +91,10 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const centeredCountries = store.get(lastCenteredCountriesAtom);
     const mouseGlobePos = store.get(mouseGlobePosAtom);
 
+    const connectedRevealedCountries = store.get(
+      connectedRevealedCountriesAtom,
+    );
+
     const viewLonRad = -rx * DEG;
     const viewLatRad = -ry * DEG;
 
@@ -118,6 +123,9 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       const feature = countryGeoData.features[i];
       const isRevealed = revealedCountries.some(c => c.id === feature.id);
       const isStart = feature.id === startCountry?.id;
+      const isConnectedRevealed = connectedRevealedCountries.some(
+        c => c.id === feature.id,
+      );
       const isEnd = feature.id === endCountry?.id;
 
       if (!showAllCountries && !isRevealed && !isStart && !isEnd) continue;
@@ -137,6 +145,8 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
       if (isStart || isEnd) {
         ctx.fillStyle = colors.terminal;
+      } else if (isConnectedRevealed) {
+        ctx.fillStyle = colors.connected;
       } else if (isRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.landHover : colors.land;

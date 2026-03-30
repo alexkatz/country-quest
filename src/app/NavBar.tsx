@@ -34,7 +34,9 @@ const matchScore = (name: string, t: string) => {
 };
 
 export const NavBar = (props: { className?: string }) => {
-  const [revealedCountries, setRevealedCountries] = useAtom(revealedCountriesAtom);
+  const [revealedCountries, setRevealedCountries] = useAtom(
+    revealedCountriesAtom,
+  );
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
 
@@ -51,7 +53,9 @@ export const NavBar = (props: { className?: string }) => {
           .filter(
             ({ name }) =>
               fuzzyMatch(name, term) &&
-              !revealedCountries.some(c => c.name === name),
+              !revealedCountries.some(c => c.name === name) &&
+              name !== startCountry.name &&
+              name !== endCountry.name,
           )
           .sort((a, b) => matchScore(a.name, term) - matchScore(b.name, term));
 

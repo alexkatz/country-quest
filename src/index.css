@@ -25,7 +25,8 @@
   --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
   --color-surface: oklch(0.39 0.06 256.27);
   --color-land: #4aa66b;
-  --color-terminal: oklch(0.78 0.17 75); /* amber */
+  --color-connected: oklch(0.78 0.17 75); /* amber */
+  --color-terminal: oklch(0.65 0.2 300); /* violet */
 }
 
 @theme inline {

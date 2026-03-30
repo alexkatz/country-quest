@@ -42,7 +42,7 @@ export const countryGeoData = topoFeature(
   (countriesData as unknown as Topology).objects.countries,
 ) as unknown as CountriesGeoJSON;
 
-countryGeoData.features.forEach((feature) => {
+countryGeoData.features.forEach(feature => {
   feature.id = Math.random().toString(36).slice(2);
   feature.properties.name =
     NAME_OVERRIDES[feature.properties.name] || feature.properties.name;
@@ -52,7 +52,7 @@ countryGeoData.features.forEach((feature) => {
 // causes France to visually span the Atlantic. Extract South American polygons as
 // a separate French Guiana feature.
 const franceFeature = countryGeoData.features.find(
-  (f) => f.properties.name === 'France',
+  f => f.properties.name === 'France',
 );
 
 if (franceFeature?.geometry.type === 'MultiPolygon') {
@@ -77,7 +77,7 @@ if (franceFeature?.geometry.type === 'MultiPolygon') {
   }
 }
 
-export const countries = countryGeoData.features.map((feature) => ({
+export const countries = countryGeoData.features.map(feature => ({
   id: feature.id as string,
   name: feature.properties.name,
   feature,

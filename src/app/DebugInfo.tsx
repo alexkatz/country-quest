@@ -7,6 +7,8 @@ import {
   roundAtom,
   showDebugInfoAtom,
   startCountryAtom,
+  connectedRevealedCountriesAtom,
+  isRoundCompleteAtom,
 } from '../game/state';
 import type { ReactNode } from 'react';
 
@@ -35,6 +37,12 @@ export const DebugInfo = () => {
 
   const revealedCountries = useAtomValue(revealedCountriesAtom);
 
+  const connectedRevealedCountries = useAtomValue(
+    connectedRevealedCountriesAtom,
+  );
+
+  const isRoundComplete = useAtomValue(isRoundCompleteAtom);
+
   return !showDebInfo ? null : (
     <div className='absolute top-2 left-2 rounded-lg backdrop-blur-2xl border border-text/30 shadow-sm/20 bg-text-10 p-2 z-50'>
       <InfoItem label='round' value={round} />
@@ -45,12 +53,22 @@ export const DebugInfo = () => {
 
       <InfoItem
         label='revealedCountries'
-        value={revealedCountries.map((c) => c.name).join(', ')}
+        value={revealedCountries.map(c => c.name).join(', ')}
+      />
+
+      <InfoItem
+        label='connectedRevealedCountries'
+        value={connectedRevealedCountries.map(c => c.name).join(', ')}
       />
 
       <InfoItem
         label='currentPath'
-        value={currentPath.map((c) => c.name).join(', ')}
+        value={currentPath.map(c => c.name).join(', ')}
+      />
+
+      <InfoItem
+        label='isRoundComplete'
+        value={isRoundComplete ? 'yes' : 'no'}
       />
     </div>
   );
