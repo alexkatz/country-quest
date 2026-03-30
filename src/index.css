@@ -34,6 +34,7 @@
   --color-text: var(--color-text);
   --color-surface: var(--color-surface);
   --color-terminal: var(--color-terminal);
+  --color-connected: var(--color-connected);
 }
 
 html {

@@ -1,23 +1,28 @@
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { tw } from '../layout/tw';
 import { useEffect, useRef, useState } from 'react';
 import { countries, type Country } from '../map/countries';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useGesture } from '@use-gesture/react';
 import { Button } from '../layout/common/Button';
-import { Square, SquareCheck } from 'lucide-react';
+import { Map, Square, SquareCheck, Type } from 'lucide-react';
 import {
   showAllCountriesAtom,
   showAllNamesAtom,
   revealedCountriesAtom,
   startCountryAtom,
   endCountryAtom,
+  isRoundCompleteAtom,
+  roundAtom,
+  connectedRevealedCountriesAtom,
 } from '../game/state';
-import { useAtomValue } from 'jotai';
+
+const normalize = (s: string) =>
+  s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
 const fuzzyMatch = (name: string, t: string) => {
-  const n = name.toLowerCase();
-  const q = t.toLowerCase();
+  const n = normalize(name);
+  const q = normalize(t);
   let qi = 0;
   for (let i = 0; i < n.length && qi < q.length; i++) {
     if (n[i] === q[qi]) qi++;
@@ -26,8 +31,8 @@ const fuzzyMatch = (name: string, t: string) => {
 };
 
 const matchScore = (name: string, t: string) => {
-  const n = name.toLowerCase();
-  const q = t.toLowerCase();
+  const n = normalize(name);
+  const q = normalize(t);
   if (n === q) return 0;
   if (n.startsWith(q)) return 1;
   return 2;
@@ -37,11 +42,17 @@ export const NavBar = (props: { className?: string }) => {
   const [revealedCountries, setRevealedCountries] = useAtom(
     revealedCountriesAtom,
   );
+
+  const connectedCountries = useAtomValue(connectedRevealedCountriesAtom);
+
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
 
   const [showAllCountries, setShowAllCountries] = useAtom(showAllCountriesAtom);
   const [showAllNames, setShowAllNames] = useAtom(showAllNamesAtom);
+
+  const isRoundComplete = useAtomValue(isRoundCompleteAtom);
+  const round = useAtomValue(roundAtom);
 
   const [term, setTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -135,6 +146,7 @@ export const NavBar = (props: { className?: string }) => {
             <input
               className='bg-background/40 backdrop-blur-2xl flex-1 p-2 border border-text/30 shadow-sm/20 rounded-lg'
               placeholder='search for a country...'
+              disabled={isRoundComplete}
               value={term}
               onChange={e => {
                 setSelectedSuggestionIndex(0);
@@ -149,30 +161,36 @@ export const NavBar = (props: { className?: string }) => {
               className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
               onClick={() => setShowAllCountries(prev => !prev)}
             >
-              {showAllCountries ? <SquareCheck /> : <Square />} All
+              {showAllCountries ? <SquareCheck /> : <Square />}{' '}
+              <Map className='opacity-50' />
             </Button>
 
             <Button
               className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
               onClick={() => setShowAllNames(prev => !prev)}
             >
-              {showAllNames ? <SquareCheck /> : <Square />} Names
+              {showAllNames ? <SquareCheck /> : <Square />}{' '}
+              <Type className='opacity-50' />
             </Button>
           </div>
 
           <div className='flex gap-1 flex-wrap'>
-            {revealedCountries
-              .concat([startCountry, endCountry])
-              .map(country => (
-                <button
-                  key={country.id}
-                  className='flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20'
-                  onMouseEnter={() => emitCenterCountries([country])}
-                  onClick={() => emitCenterCountries([country])}
-                >
-                  {country.name}
-                </button>
-              ))}
+            {[startCountry, ...revealedCountries, endCountry].map(country => (
+              <button
+                key={country.id}
+                className={tw(
+                  'flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20',
+                  connectedCountries.some(c => c.id === country.id) &&
+                    'bg-connected/60',
+                  (country === startCountry || country === endCountry) &&
+                    'bg-terminal/60',
+                )}
+                onMouseEnter={() => emitCenterCountries([country])}
+                onClick={() => emitCenterCountries([country])}
+              >
+                {country.name}
+              </button>
+            ))}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { geoOrthographic, geoPath } from 'd3-geo';
+import { geoOrthographic, geoPath, geoCentroid } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
 import {
   GLOBE_SIZE,
@@ -155,6 +155,22 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       }
       ctx.fill();
       ctx.stroke();
+
+      // Countries too small to form a visible polygon — draw a dot with enclosing circle
+      if (pathGen.area(feature) < 2) {
+        const center = projection(geoCentroid(feature));
+        if (center) {
+          ctx.beginPath();
+          ctx.arc(center[0], center[1], 1, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(center[0], center[1], 6, 0, Math.PI * 2);
+          ctx.strokeStyle = ctx.fillStyle;
+          ctx.lineWidth = 0.75;
+          ctx.stroke();
+        }
+      }
     }
 
     // Labels for hovered / centered countries
@@ -174,10 +190,10 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
           x = mouseGlobePos[0];
           y = mouseGlobePos[1] - 10;
         } else {
-          const centroid = pathGen.centroid(feature);
-          if (isNaN(centroid[0]) || isNaN(centroid[1])) continue;
-          x = centroid[0];
-          y = centroid[1];
+          const center = projection(geoCentroid(feature));
+          if (!center || isNaN(center[0]) || isNaN(center[1])) continue;
+          x = center[0];
+          y = center[1];
         }
 
         const name = feature.properties.name;
