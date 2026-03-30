@@ -1,12 +1,12 @@
 type Colors = {
   surface: string;
   text: string;
-  land: string;
-  landHover: string;
   terminal: string;
   connected: string;
   globeBorder: string;
   countryBorder: string;
+  revealed: string;
+  revealedHover: string;
   unrevealed: string;
   unrevealedHover: string;
   labelOutline: string;
@@ -19,7 +19,6 @@ export const getColors = (): Colors => {
 
   const style = getComputedStyle(document.documentElement);
   const text = style.getPropertyValue('--color-text').trim();
-  const land = style.getPropertyValue('--color-land').trim();
   const terminal = style.getPropertyValue('--color-terminal').trim();
   const connected = style.getPropertyValue('--color-connected').trim();
 
@@ -27,13 +26,13 @@ export const getColors = (): Colors => {
     surface: style.getPropertyValue('--color-surface').trim(),
     text,
     connected,
-    land: `color-mix(in srgb, ${land} 69%, transparent)`,
-    landHover: `color-mix(in srgb, ${land} 50%, transparent)`,
     terminal: `color-mix(in oklch, ${terminal} 75%, transparent)`,
     globeBorder: `color-mix(in oklch, ${text} 30%, transparent)`,
     countryBorder: `color-mix(in oklch, ${text} 50%, transparent)`,
+    revealed: `color-mix(in oklch, ${text} 60%, transparent)`,
+    revealedHover: `color-mix(in oklch, ${text} 70%, transparent)`,
     unrevealed: `color-mix(in oklch, ${text} 10%, transparent)`,
-    unrevealedHover: `color-mix(in oklch, ${text} 15%, transparent)`,
+    unrevealedHover: `color-mix(in oklch, ${text} 20%, transparent)`,
     labelOutline: 'color-mix(in oklch, black 50%, transparent)',
   };
 

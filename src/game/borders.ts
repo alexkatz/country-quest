@@ -468,7 +468,7 @@ export const borders = {
   // ── Southeast Asia ──────────────────────────────────────────────────────
   Brunei: ['Malaysia'],
   Cambodia: ['Vietnam', 'Laos', 'Thailand'],
-  Indonesia: ['Malaysia', 'Papua New Guinea', 'Timor-Leste', 'Philippines'],
+  Indonesia: ['Malaysia', 'Papua New Guinea', 'Timor-Leste', 'Philippines', 'Australia'], // exception: ~350 km from Rote Island to Australia's northwest coast
   Laos: ['China', 'Vietnam', 'Cambodia', 'Thailand', 'Myanmar'],
   Malaysia: ['Thailand', 'Brunei', 'Indonesia', 'Philippines', 'Singapore'],
   Myanmar: ['China', 'Laos', 'Thailand', 'Bangladesh', 'India'],
@@ -479,7 +479,7 @@ export const borders = {
   Vietnam: ['China', 'Laos', 'Cambodia'],
 
   // ── Oceania ─────────────────────────────────────────────────────────────
-  Australia: ['Papua New Guinea', 'New Zealand'], // exception: ~2200 km to New Zealand
+  Australia: ['Papua New Guinea', 'Indonesia', 'New Zealand'], // exception: ~350 km to Indonesia (Rote Island), ~2200 km to New Zealand
   Fiji: [],
   Kiribati: [],
   'Marshall Islands': [],

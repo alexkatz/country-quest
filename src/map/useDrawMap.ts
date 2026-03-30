@@ -149,7 +149,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
         ctx.fillStyle = colors.connected;
       } else if (isRevealed) {
         ctx.fillStyle =
-          isHovered || isCentered ? colors.landHover : colors.land;
+          isHovered || isCentered ? colors.revealedHover : colors.revealed;
       } else {
         ctx.fillStyle = isHovered ? colors.unrevealedHover : colors.unrevealed;
       }
