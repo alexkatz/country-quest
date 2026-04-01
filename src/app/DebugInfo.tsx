@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai';
 import {
-  currentPathAtom,
+  optimalPathAtom,
   endCountryAtom,
   revealedCountriesAtom,
   maxPathSizeAtom,
@@ -33,7 +33,7 @@ export const DebugInfo = () => {
 
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
-  const currentPath = useAtomValue(currentPathAtom);
+  const optimalPath = useAtomValue(optimalPathAtom);
 
   const revealedCountries = useAtomValue(revealedCountriesAtom);
 
@@ -62,8 +62,8 @@ export const DebugInfo = () => {
       />
 
       <InfoItem
-        label='currentPath'
-        value={currentPath.map(c => c.name).join(', ')}
+        label='optimalPath'
+        value={optimalPath.map(c => c.name).join(', ')}
       />
 
       <InfoItem

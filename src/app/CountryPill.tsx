@@ -1,9 +1,11 @@
+import type { ReactNode } from 'react';
 import { tw } from '../layout/tw';
 import type { Country } from '../map/countries';
 
 export const CountryPill = (props: {
   className?: string;
-  country: Country;
+  country?: Country;
+  children?: ReactNode;
   onMouseEnter?: () => void;
   onFocus?: () => void;
   onClick?: () => void;
@@ -18,7 +20,7 @@ export const CountryPill = (props: {
       onFocus={props.onFocus}
       onClick={props.onClick}
     >
-      {props.country.name}
+      {props.country?.name ?? props.children}
     </button>
   );
 };

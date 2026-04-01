@@ -1,6 +1,5 @@
 import { atom } from 'jotai';
-import { countryGeoData, type Country } from './countries';
-import { geoCentroid } from 'd3-geo';
+import { type Country } from './countries';
 import type { AnimationConfig } from '@react-spring/web';
 
 export const hoveredCountryAtom = atom<Country | undefined>();
@@ -15,11 +14,6 @@ export const DEFAULT_SCALE = 250;
 export const MAX_SCALE = 1700;
 export const ROTATION_SENSITIVITY = 0.15;
 export const ZOOM_SENSITIVITY = 100;
-
-export const CENTROIDS = countryGeoData.features.map((f) => {
-  const [lon, lat] = geoCentroid(f);
-  return [lon * DEG, lat * DEG] as [number, number];
-});
 
 export const ROTATION_SPRING_CONFIG = {
   tension: 280,

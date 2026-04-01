@@ -5,7 +5,7 @@ import { countries, type Country } from '../map/countries';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useGesture } from '@use-gesture/react';
 import { Button } from '../layout/common/Button';
-import { Dot, Map, Square, SquareCheck, Type } from 'lucide-react';
+import { Dot, Info, Map, Square, SquareCheck, Type } from 'lucide-react';
 import {
   showAllCountriesAtom,
   showAllNamesAtom,
@@ -15,9 +15,10 @@ import {
   isRoundCompleteAtom,
   connectedRevealedCountriesAtom,
   winningPathAtom,
-  currentPathAtom,
-  connectedRevealedSuperfluouslyAtom,
+  optimalPathAtom,
   missedOptimalPathAtom,
+  showColorKeyAtom,
+  revealedNonOptimalAtom,
 } from '../game/state';
 import { CountryPill } from './CountryPill';
 
@@ -53,24 +54,23 @@ export const NavBar = (props: { className?: string }) => {
     connectedRevealedCountriesAtom,
   );
 
-  const startCountry = useAtomValue(startCountryAtom);
-  const endCountry = useAtomValue(endCountryAtom);
-
   const [showAllCountries, setShowAllCountries] = useAtom(showAllCountriesAtom);
   const [showAllNames, setShowAllNames] = useAtom(showAllNamesAtom);
 
+  const startCountry = useAtomValue(startCountryAtom);
+  const endCountry = useAtomValue(endCountryAtom);
   const isRoundComplete = useAtomValue(isRoundCompleteAtom);
   const winningPath = useAtomValue(winningPathAtom);
-  const currentPath = useAtomValue(currentPathAtom);
+  const optimalPath = useAtomValue(optimalPathAtom);
   const missedOptimalPath = useAtomValue(missedOptimalPathAtom);
-  const connectedRevealedSuperfluously = useAtomValue(
-    connectedRevealedSuperfluouslyAtom,
-  );
+  const revealedNonOptimal = useAtomValue(revealedNonOptimalAtom);
 
-  const isWinningPathOptimal = winningPath.length === currentPath.length;
+  const isWinningPathOptimal = winningPath.length === optimalPath.length;
 
   const [term, setTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [isColorKeyOpen, setIsColorKeyOpen] = useAtom(showColorKeyAtom);
 
   const suggestions =
     term.length === 0
@@ -88,7 +88,7 @@ export const NavBar = (props: { className?: string }) => {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 
   const onRevealCountry = (country: Country) => {
-    if (!revealedCountries.some(c => c.id === country.id)) {
+    if (!revealedCountries.includes(country)) {
       setRevealedCountries(prev => [...prev, country]);
       setTerm('');
       inputRef.current?.focus();
@@ -143,7 +143,33 @@ export const NavBar = (props: { className?: string }) => {
 
   return (
     <nav className={tw('z-50', props.className)}>
-      <div className='flex flex-col gap-2 p-2 w-full max-w-5xl sm:mx-auto sm:px-2'>
+      <div className='flex relative flex-col gap-2 p-2 w-full max-w-5xl sm:mx-auto sm:px-2'>
+        {isRoundComplete && isColorKeyOpen && (
+          <div className='absolute bottom-full right-2 bg-background/30 flex flex-col gap-2 rounded-lg border border-text/30 backdrop-blur-2xl shadow-sm/20 p-2'>
+            <div className='opacity-60'>Color Key</div>
+
+            <CountryPill
+              className='bg-terminal/60 self-start'
+              children='Start/End'
+            />
+
+            <CountryPill
+              className='bg-connected/60 self-start'
+              children='Revealed, on path'
+            />
+
+            <CountryPill
+              className='bg-text/20 self-start'
+              children='Revealed, but not on path'
+            />
+
+            <CountryPill
+              className='bg-optimal/80 self-start'
+              children='Optimal path, but not revealed'
+            />
+          </div>
+        )}
+
         {!isRoundComplete && suggestions.length > 0 && (
           <div className='bg-background/30 rounded-lg border border-text/30 backdrop-blur-2xl shadow-sm/20 p-2'>
             {suggestions.map((country, i) => {
@@ -164,8 +190,19 @@ export const NavBar = (props: { className?: string }) => {
         )}
 
         {isRoundComplete && (
-          <div className='bg-background/30 rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-2 shadow-sm/20 p-4'>
-            <div className='text-4xl leading-12'>
+          <div className='bg-background/30 relative rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-2 shadow-sm/20 p-4'>
+            <button
+              className={tw(
+                'absolute top-2 right-2 cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
+                isColorKeyOpen && 'bg-text/30 border-text/30',
+                !isColorKeyOpen && 'shadow-transparent',
+              )}
+              onClick={() => setIsColorKeyOpen(prev => !prev)}
+            >
+              <Info />
+            </button>
+
+            <div className='text-2xl leading-8'>
               You connected{' '}
               <CountryPill
                 className='font-bold bg-terminal/60 inline'
@@ -209,41 +246,17 @@ export const NavBar = (props: { className?: string }) => {
               ))}
             </div>
 
-            <div className='text-lg'>
-              <Dot />
-              You revealed{' '}
-              <span className='font-bold'>{revealedCountries.length}</span>{' '}
-              countries in total:
-            </div>
-
-            <div className='flex gap-1 flex-wrap ml-8'>
-              {revealedCountries.map(country => (
-                <CountryPill
-                  key={country.id}
-                  className={tw(
-                    'bg-connected/60',
-                    connectedRevealedSuperfluously.includes(country) &&
-                      'bg-connected/20',
-                    !connectedRevealedCountries.includes(country) &&
-                      'bg-text/20',
-                  )}
-                  country={country}
-                  {...createCountryPillEvents(country)}
-                />
-              ))}
-            </div>
-
             {!isWinningPathOptimal && (
               <>
                 <div className='text-lg'>
                   <Dot />
                   The optimal path is{' '}
-                  <span className='font-bold'>{currentPath.length}</span>{' '}
+                  <span className='font-bold'>{optimalPath.length}</span>{' '}
                   countries:
                 </div>
 
                 <div className='flex gap-1 flex-wrap ml-8'>
-                  {currentPath.map(country => (
+                  {optimalPath.map(country => (
                     <CountryPill
                       key={country.id}
                       className={tw(
@@ -260,6 +273,30 @@ export const NavBar = (props: { className?: string }) => {
                 </div>
               </>
             )}
+
+            <div className='text-lg'>
+              <Dot />
+              You revealed{' '}
+              <span className='font-bold'>{revealedCountries.length}</span>{' '}
+              countries in total:
+            </div>
+
+            <div className='flex gap-1 flex-wrap ml-8'>
+              {revealedCountries.map(country => (
+                <CountryPill
+                  key={country.id}
+                  className={tw(
+                    'bg-connected/60',
+                    (revealedNonOptimal.includes(country) ||
+                      !connectedRevealedCountries.includes(country)) &&
+                      'bg-text/20',
+                    missedOptimalPath.includes(country) && 'bg-optimal/80!',
+                  )}
+                  country={country}
+                  {...createCountryPillEvents(country)}
+                />
+              ))}
+            </div>
           </div>
         )}
 
@@ -271,7 +308,7 @@ export const NavBar = (props: { className?: string }) => {
                   'flex-1 p-2 focus:outline-none bg-transparent cursor-default',
                   term.length === 0 && 'caret-transparent',
                 )}
-                placeholder='Start typing to reveal a country...'
+                placeholder='Type anywhere to reveal a country...'
                 tabIndex={-1}
                 disabled={isRoundComplete}
                 value={term}

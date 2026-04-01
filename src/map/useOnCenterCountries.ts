@@ -1,13 +1,6 @@
 import { geoBounds } from 'd3-geo';
 import { useEffectEvent, useEffect } from 'react';
-import {
-  CENTROIDS,
-  DEG,
-  GLOBE_SIZE,
-  MIN_SCALE,
-  lastCenteredCountriesAtom,
-} from './state';
-import { countryGeoData } from './countries';
+import { DEG, GLOBE_SIZE, MIN_SCALE, lastCenteredCountriesAtom } from './state';
 import { type CenterCountriesHandler, onCenterCountries } from './globeEvents';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
@@ -22,22 +15,16 @@ export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
   const store = useStore();
 
   const centerCountries = useEffectEvent((countries => {
-    const indices = countries
-      .map(c => countryGeoData.features.findIndex(f => f.id === c.id))
-      .filter(i => i >= 0);
-
-    if (indices.length === 0) return;
-
-    const centroids = indices.map(i => CENTROIDS[i]);
-
     let x = 0,
       y = 0,
       z = 0;
-    for (const [lonRad, latRad] of centroids) {
+    for (const country of countries) {
+      const [lonRad, latRad] = country.centroid;
       x += Math.cos(latRad) * Math.cos(lonRad);
       y += Math.cos(latRad) * Math.sin(lonRad);
       z += Math.sin(latRad);
     }
+
     const mag = Math.sqrt(x * x + y * y + z * z);
     const centerLon = Math.atan2(y, x) / DEG;
     const centerLat = Math.asin(z / mag) / DEG;
@@ -47,10 +34,8 @@ export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
 
     const centerLonRad = centerLon * DEG;
     const centerLatRad = centerLat * DEG;
-    const boundaryPoints = indices.flatMap(i => {
-      const [[west, south], [east, north]] = geoBounds(
-        countryGeoData.features[i],
-      );
+    const boundaryPoints = countries.flatMap(country => {
+      const [[west, south], [east, north]] = geoBounds(country.feature);
       return [
         [west * DEG, south * DEG],
         [east * DEG, north * DEG],

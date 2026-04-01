@@ -6,19 +6,17 @@ import {
   lastCenteredCountriesAtom,
   mouseGlobePosAtom,
   DEG,
-  CENTROIDS,
 } from './state';
 import { countryGeoData, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import {
   connectedRevealedCountriesAtom,
-  connectedRevealedSuperfluouslyAtom,
-  currentPathAtom,
   endCountryAtom,
   isRoundCompleteAtom,
   missedOptimalPathAtom,
   revealedCountriesAtom,
+  revealedNonOptimalAtom,
   showAllCountriesAtom,
   showAllNamesAtom,
   startCountryAtom,
@@ -94,9 +92,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const isRoundComplete = store.get(isRoundCompleteAtom);
     const winningPath = store.get(winningPathAtom);
     const missedOptimalPath = store.get(missedOptimalPathAtom);
-    const revealedConnectedSuperfluously = store.get(
-      connectedRevealedSuperfluouslyAtom,
-    );
+    const revealedNonOptimal = store.get(revealedNonOptimalAtom);
 
     const showNames = isRoundComplete ? true : store.get(showAllNamesAtom);
     const showAllCountries = isRoundComplete
@@ -118,7 +114,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     if (
       hoveredCountry &&
       (showNames ||
-        revealedCountries.some(c => c.id === hoveredCountry.id) ||
+        revealedCountries.includes(hoveredCountry) ||
         hoveredCountry.id === startCountry?.id ||
         hoveredCountry.id === endCountry?.id)
     ) {
@@ -139,32 +135,25 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       const country = countryByName.get(feature.properties.name)!;
 
       const isRevealed =
-        revealedCountries.some(c => c.id === feature.id) ||
-        (isRoundComplete && winningPath.some(c => c.id === feature.id));
+        revealedCountries.includes(country) ||
+        (isRoundComplete && winningPath.includes(country));
 
-      const isStart = feature.id === startCountry?.id;
-
-      const isConnectedRevealed = connectedRevealedCountries.some(
-        c => c.id === feature.id,
-      );
-
-      const isEnd = feature.id === endCountry?.id;
-
-      const isConnectedRevealedSuperfluously =
-        revealedConnectedSuperfluously.includes(country);
+      const isStart = country === startCountry;
+      const isEnd = country === endCountry;
 
       if (!showAllCountries && !isRevealed && !isStart && !isEnd) continue;
 
-      const [lonRad, latRad] = CENTROIDS[i];
+      const [lonRad, latRad] = country.centroid;
       const dot =
         Math.sin(latRad) * Math.sin(viewLatRad) +
         Math.cos(latRad) * Math.cos(viewLatRad) * Math.cos(lonRad - viewLonRad);
       if (dot < -0.1) continue;
 
-      const id = String(feature.id ?? '');
-      const isHovered = hoveredCountry?.id === id;
-      const isCentered = centeredCountries?.some(c => c.id === id) ?? false;
+      const isHovered = country === hoveredCountry;
+      const isCentered = centeredCountries?.includes(country);
       const isMissedOptimal = missedOptimalPath.includes(country);
+      const isConnectedRevealed = connectedRevealedCountries.includes(country);
+      const isRevealedNonOptimal = revealedNonOptimal.includes(country);
 
       ctx.beginPath();
       pathGen(feature);
@@ -172,20 +161,18 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       if (isStart || isEnd) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.terminalHover : colors.terminal;
-      } else if (isConnectedRevealedSuperfluously) {
+      } else if (isMissedOptimal) {
         ctx.fillStyle =
-          isHovered || isCentered
-            ? colors.connectedSuperfluouslyHover
-            : colors.connectedSuperfluously;
+          isHovered || isCentered ? colors.optimalHover : colors.optimal;
+      } else if (isRevealedNonOptimal) {
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.revealedHover : colors.revealed;
       } else if (isConnectedRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.connectedHover : colors.connected;
       } else if (isRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.revealedHover : colors.revealed;
-      } else if (isMissedOptimal) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.optimalHover : colors.optimal;
       } else {
         ctx.fillStyle =
           isHovered || isCentered ? colors.unrevealedHover : colors.unrevealed;

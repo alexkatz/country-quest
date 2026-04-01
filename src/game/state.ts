@@ -6,7 +6,7 @@ import type { Country } from '../map/countries';
 import { getNeighbors } from './getNeighbors';
 
 const INITIAL_MIN_PATH_SIZE = 5;
-const INITIAL_MAX_PATH_SIZE = 15;
+const INITIAL_MAX_PATH_SIZE = 5;
 
 const INITIAL_PATH = getRandomPath({
   length:
@@ -17,13 +17,19 @@ const INITIAL_PATH = getRandomPath({
 });
 
 export const showDebugInfoAtom = atom(false);
+export const showColorKeyAtom = atomWithStorage(
+  'show-color-key',
+  true,
+  undefined,
+  { getOnInit: true },
+);
 
 export const roundAtom = atom(1);
 export const maxPathSizeAtom = atom(INITIAL_MAX_PATH_SIZE);
 
 export const startCountryAtom = atom(INITIAL_PATH.at(0)!);
 export const endCountryAtom = atom(INITIAL_PATH.at(-1)!);
-export const currentPathAtom = atom(INITIAL_PATH);
+export const optimalPathAtom = atom(INITIAL_PATH);
 export const revealedCountriesAtom = atom<Country[]>([]);
 
 // computes the set of revealed countries that are connected to either the start or end country
@@ -88,18 +94,20 @@ export const winningPathAtom = atom(get => {
   return [];
 });
 
-export const connectedRevealedSuperfluouslyAtom = atom(get => {
+export const revealedNonOptimalAtom = atom(get => {
   if (!get(isRoundCompleteAtom)) return [];
-  const connectedRevealed = get(connectedRevealedCountriesAtom);
+  const revealed = get(revealedCountriesAtom);
   const winningPath = get(winningPathAtom);
-  return connectedRevealed.filter(c => !winningPath.includes(c));
+  return revealed.filter(c => !winningPath.includes(c));
 });
 
 export const missedOptimalPathAtom = atom(get => {
   if (!get(isRoundCompleteAtom)) return [];
   const winningPath = get(winningPathAtom);
-  const currentPath = get(currentPathAtom);
-  return currentPath.filter(c => !winningPath.includes(c));
+  const optimalPath = get(optimalPathAtom);
+  return optimalPath.length === winningPath.length
+    ? []
+    : optimalPath.filter(c => !winningPath.includes(c));
 });
 
 export const showAllNamesAtom = atomWithStorage(

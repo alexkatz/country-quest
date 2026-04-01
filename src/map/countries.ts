@@ -2,6 +2,8 @@ import { feature as topoFeature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import countriesData from './data/countries-simplified.json';
 import type { CountriesGeoJSON } from './types';
+import { geoCentroid } from 'd3-geo';
+import { DEG } from './state';
 
 const NAME_OVERRIDES: Record<string, string> = {
   'Antigua and Barb.': 'Antigua and Barbuda',
@@ -77,11 +79,14 @@ if (franceFeature?.geometry.type === 'MultiPolygon') {
   }
 }
 
-export const countries = countryGeoData.features.map(feature => ({
-  id: feature.id as string,
-  name: feature.properties.name,
-  feature,
-}));
-
+export const countries = countryGeoData.features.map(feature => {
+  const [lon, lat] = geoCentroid(feature);
+  return {
+    id: feature.id as string,
+    name: feature.properties.name,
+    feature,
+    centroid: [lon * DEG, lat * DEG],
+  };
+});
 
 export type Country = (typeof countries)[number];

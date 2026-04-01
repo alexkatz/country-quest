@@ -7,8 +7,6 @@ type Colors = {
   optimalHover: string;
   connected: string;
   connectedHover: string;
-  connectedSuperfluously: string;
-  connectedSuperfluouslyHover: string;
   globeBorder: string;
   countryBorder: string;
   revealed: string;
@@ -43,9 +41,6 @@ export const getColors = (): Colors => {
     optimal: `color-mix(in oklch, ${optimal} 80%, transparent)`,
     optimalHover: `color-mix(in oklch, ${optimal} 60%, transparent)`,
 
-    connectedSuperfluously: `color-mix(in oklch, ${connected} 50%, transparent)`,
-    connectedSuperfluouslyHover: `color-mix(in oklch, ${connected} 40%, transparent)`,
-
     globeBorder: `color-mix(in oklch, ${text} 30%, transparent)`,
     countryBorder: `color-mix(in oklch, ${text} 50%, transparent)`,
 
@@ -53,7 +48,7 @@ export const getColors = (): Colors => {
     revealedHover: `color-mix(in oklch, ${text} 40%, transparent)`,
 
     unrevealed: `color-mix(in oklch, ${text} 10%, transparent)`,
-    unrevealedHover: `color-mix(in oklch, ${text} 20%, transparent)`,
+    unrevealedHover: `color-mix(in oklch, ${text} 30%, transparent)`,
 
     labelOutline: 'color-mix(in oklch, black 50%, transparent)',
   };
