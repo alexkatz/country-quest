@@ -5,8 +5,16 @@ import { getConnectedGroup } from './getConnectedGroup';
 import type { Country } from '../map/countries';
 import { getNeighbors } from './getNeighbors';
 
-const INITIAL_MAX_PATH_SIZE = 5;
-const INITIAL_PATH = getRandomPath({ length: INITIAL_MAX_PATH_SIZE });
+const INITIAL_MIN_PATH_SIZE = 5;
+const INITIAL_MAX_PATH_SIZE = 15;
+
+const INITIAL_PATH = getRandomPath({
+  length:
+    INITIAL_MIN_PATH_SIZE +
+    Math.floor(
+      Math.random() * (INITIAL_MAX_PATH_SIZE - INITIAL_MIN_PATH_SIZE + 1),
+    ),
+});
 
 export const showDebugInfoAtom = atom(false);
 
@@ -82,11 +90,16 @@ export const winningPathAtom = atom(get => {
 
 export const connectedRevealedSuperfluouslyAtom = atom(get => {
   if (!get(isRoundCompleteAtom)) return [];
-
   const connectedRevealed = get(connectedRevealedCountriesAtom);
   const winningPath = get(winningPathAtom);
-
   return connectedRevealed.filter(c => !winningPath.includes(c));
+});
+
+export const missedOptimalPathAtom = atom(get => {
+  if (!get(isRoundCompleteAtom)) return [];
+  const winningPath = get(winningPathAtom);
+  const currentPath = get(currentPathAtom);
+  return currentPath.filter(c => !winningPath.includes(c));
 });
 
 export const showAllNamesAtom = atomWithStorage(

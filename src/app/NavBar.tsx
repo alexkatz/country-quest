@@ -17,6 +17,7 @@ import {
   winningPathAtom,
   currentPathAtom,
   connectedRevealedSuperfluouslyAtom,
+  missedOptimalPathAtom,
 } from '../game/state';
 import { CountryPill } from './CountryPill';
 
@@ -61,6 +62,7 @@ export const NavBar = (props: { className?: string }) => {
   const isRoundComplete = useAtomValue(isRoundCompleteAtom);
   const winningPath = useAtomValue(winningPathAtom);
   const currentPath = useAtomValue(currentPathAtom);
+  const missedOptimalPath = useAtomValue(missedOptimalPathAtom);
   const connectedRevealedSuperfluously = useAtomValue(
     connectedRevealedSuperfluouslyAtom,
   );
@@ -184,13 +186,12 @@ export const NavBar = (props: { className?: string }) => {
               {isWinningPathOptimal ? (
                 <span>
                   {' '}
-                  <span className='font-bold'>optimal</span>, at
+                  <span className='font-bold'>optimal</span>, with
                 </span>
               ) : (
                 ' '
               )}{' '}
-              <span className='font-bold'>{winningPath.length}</span> countries
-              long:
+              <span className='font-bold'>{winningPath.length}</span> countries:
             </div>
 
             <div className='flex gap-1 flex-wrap ml-8'>
@@ -238,7 +239,7 @@ export const NavBar = (props: { className?: string }) => {
                   <Dot />
                   The optimal path is{' '}
                   <span className='font-bold'>{currentPath.length}</span>{' '}
-                  countries long:
+                  countries:
                 </div>
 
                 <div className='flex gap-1 flex-wrap ml-8'>
@@ -250,6 +251,7 @@ export const NavBar = (props: { className?: string }) => {
                         (country === startCountry || country === endCountry) &&
                           'bg-terminal/60',
                         !winningPath.includes(country) && 'bg-text/20!',
+                        missedOptimalPath.includes(country) && 'bg-optimal/80!',
                       )}
                       country={country}
                       {...createCountryPillEvents(country)}
@@ -311,7 +313,7 @@ export const NavBar = (props: { className?: string }) => {
                 <CountryPill
                   key={country.id}
                   className={tw(
-                    connectedRevealedCountries.some(c => c.id === country.id) &&
+                    connectedRevealedCountries.includes(country) &&
                       'bg-connected/60',
                     (country === startCountry || country === endCountry) &&
                       'bg-terminal/60',

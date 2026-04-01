@@ -17,6 +17,7 @@ import {
   currentPathAtom,
   endCountryAtom,
   isRoundCompleteAtom,
+  missedOptimalPathAtom,
   revealedCountriesAtom,
   showAllCountriesAtom,
   showAllNamesAtom,
@@ -92,7 +93,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const endCountry = store.get(endCountryAtom);
     const isRoundComplete = store.get(isRoundCompleteAtom);
     const winningPath = store.get(winningPathAtom);
-    const currentPath = store.get(currentPathAtom);
+    const missedOptimalPath = store.get(missedOptimalPathAtom);
     const revealedConnectedSuperfluously = store.get(
       connectedRevealedSuperfluouslyAtom,
     );
@@ -163,6 +164,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       const id = String(feature.id ?? '');
       const isHovered = hoveredCountry?.id === id;
       const isCentered = centeredCountries?.some(c => c.id === id) ?? false;
+      const isMissedOptimal = missedOptimalPath.includes(country);
 
       ctx.beginPath();
       pathGen(feature);
@@ -181,6 +183,9 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       } else if (isRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.revealedHover : colors.revealed;
+      } else if (isMissedOptimal) {
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.optimalHover : colors.optimal;
       } else {
         ctx.fillStyle =
           isHovered || isCentered ? colors.unrevealedHover : colors.unrevealed;
