@@ -17,6 +17,7 @@ import { geoContains, geoOrthographic } from 'd3-geo';
 import { countryGeoData, type Country } from './countries';
 import {
   endCountryAtom,
+  isRoundCompleteAtom,
   revealedCountriesAtom,
   showAllCountriesAtom,
   startCountryAtom,
@@ -103,8 +104,11 @@ export const useMapGestures = ({
           .rotate([rx, ry, rz]);
 
         const lonLat = projection.invert?.([mx, my]);
+        const isRoundComplete = store.get(isRoundCompleteAtom);
         const revealed = store.get(revealedCountriesAtom);
-        const showAll = store.get(showAllCountriesAtom);
+        const showAll = isRoundComplete
+          ? true
+          : store.get(showAllCountriesAtom);
         const startCountry = store.get(startCountryAtom);
         const endCountry = store.get(endCountryAtom);
 

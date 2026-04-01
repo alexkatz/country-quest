@@ -1,11 +1,11 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import { tw } from '../layout/tw';
 import { useEffect, useRef, useState } from 'react';
 import { countries, type Country } from '../map/countries';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useGesture } from '@use-gesture/react';
 import { Button } from '../layout/common/Button';
-import { Map, Square, SquareCheck, Type } from 'lucide-react';
+import { Dot, Map, Square, SquareCheck, Type } from 'lucide-react';
 import {
   showAllCountriesAtom,
   showAllNamesAtom,
@@ -13,9 +13,12 @@ import {
   startCountryAtom,
   endCountryAtom,
   isRoundCompleteAtom,
-  roundAtom,
   connectedRevealedCountriesAtom,
+  winningPathAtom,
+  currentPathAtom,
+  connectedRevealedSuperfluouslyAtom,
 } from '../game/state';
+import { CountryPill } from './CountryPill';
 
 const normalize = (s: string) =>
   s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
@@ -39,11 +42,15 @@ const matchScore = (name: string, t: string) => {
 };
 
 export const NavBar = (props: { className?: string }) => {
+  const store = useStore();
+
   const [revealedCountries, setRevealedCountries] = useAtom(
     revealedCountriesAtom,
   );
 
-  const connectedCountries = useAtomValue(connectedRevealedCountriesAtom);
+  const connectedRevealedCountries = useAtomValue(
+    connectedRevealedCountriesAtom,
+  );
 
   const startCountry = useAtomValue(startCountryAtom);
   const endCountry = useAtomValue(endCountryAtom);
@@ -52,7 +59,13 @@ export const NavBar = (props: { className?: string }) => {
   const [showAllNames, setShowAllNames] = useAtom(showAllNamesAtom);
 
   const isRoundComplete = useAtomValue(isRoundCompleteAtom);
-  const round = useAtomValue(roundAtom);
+  const winningPath = useAtomValue(winningPathAtom);
+  const currentPath = useAtomValue(currentPathAtom);
+  const connectedRevealedSuperfluously = useAtomValue(
+    connectedRevealedSuperfluouslyAtom,
+  );
+
+  const isWinningPathOptimal = winningPath.length === currentPath.length;
 
   const [term, setTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -84,11 +97,12 @@ export const NavBar = (props: { className?: string }) => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (document.activeElement === inputRef.current) return;
       if (e.key.length !== 1 || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (store.get(isRoundCompleteAtom)) return;
       inputRef.current?.focus();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [store]);
 
   const bindGesture = useGesture({
     onKeyDown({ event }) {
@@ -119,10 +133,16 @@ export const NavBar = (props: { className?: string }) => {
     },
   });
 
+  const createCountryPillEvents = (country: Country) => ({
+    onMouseEnter: () => emitCenterCountries([country]),
+    onFocus: () => emitCenterCountries([country]),
+    onClick: () => emitCenterCountries([country]),
+  });
+
   return (
     <nav className={tw('z-50', props.className)}>
-      <div className='flex flex-col gap-2 p-2 w-full max-w-3xl sm:mx-auto sm:px-6'>
-        {suggestions.length > 0 && (
+      <div className='flex flex-col gap-2 p-2 w-full max-w-5xl sm:mx-auto sm:px-2'>
+        {!isRoundComplete && suggestions.length > 0 && (
           <div className='bg-background/30 rounded-lg border border-text/30 backdrop-blur-2xl shadow-sm/20 p-2'>
             {suggestions.map((country, i) => {
               return (
@@ -141,58 +161,168 @@ export const NavBar = (props: { className?: string }) => {
           </div>
         )}
 
-        <div className='flex flex-col gap-2'>
-          <div className='flex items-center gap-2'>
-            <input
-              className='bg-background/40 backdrop-blur-2xl flex-1 p-2 border border-text/30 shadow-sm/20 rounded-lg'
-              placeholder='search for a country...'
-              disabled={isRoundComplete}
-              value={term}
-              onChange={e => {
-                setSelectedSuggestionIndex(0);
-                setTerm(e.target.value);
-              }}
-              ref={inputRef}
-              autoFocus
-              {...bindGesture()}
-            />
+        {isRoundComplete && (
+          <div className='bg-background/30 rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-2 shadow-sm/20 p-4'>
+            <div className='text-4xl leading-12'>
+              You connected{' '}
+              <CountryPill
+                className='font-bold bg-terminal/60 inline'
+                country={startCountry}
+                {...createCountryPillEvents(startCountry)}
+              />{' '}
+              to{' '}
+              <CountryPill
+                className='font-bold bg-terminal/60 inline'
+                country={endCountry}
+                {...createCountryPillEvents(endCountry)}
+              />
+            </div>
 
-            <Button
-              className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
-              onClick={() => setShowAllCountries(prev => !prev)}
-            >
-              {showAllCountries ? <SquareCheck /> : <Square />}{' '}
-              <Map className='opacity-50' />
-            </Button>
+            <div className='text-lg'>
+              <Dot />
+              Your path is
+              {isWinningPathOptimal ? (
+                <span>
+                  {' '}
+                  <span className='font-bold'>optimal</span>, at
+                </span>
+              ) : (
+                ' '
+              )}{' '}
+              <span className='font-bold'>{winningPath.length}</span> countries
+              long:
+            </div>
 
-            <Button
-              className='self-stretch items-center gap-2 flex bg-background/40 backdrop-blur-2xl'
-              onClick={() => setShowAllNames(prev => !prev)}
-            >
-              {showAllNames ? <SquareCheck /> : <Square />}{' '}
-              <Type className='opacity-50' />
-            </Button>
-          </div>
-
-          <div className='flex gap-1 flex-wrap'>
-            {[startCountry, ...revealedCountries, endCountry].map(country => (
-              <button
-                key={country.id}
-                className={tw(
-                  'flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg py-1 px-2 bg-background/40 backdrop-blur-2xl border border-text/30 shadow-sm/20',
-                  connectedCountries.some(c => c.id === country.id) &&
+            <div className='flex gap-1 flex-wrap ml-8'>
+              {winningPath.map(country => (
+                <CountryPill
+                  key={country.id}
+                  className={tw(
                     'bg-connected/60',
-                  (country === startCountry || country === endCountry) &&
-                    'bg-terminal/60',
-                )}
-                onMouseEnter={() => emitCenterCountries([country])}
-                onClick={() => emitCenterCountries([country])}
-              >
-                {country.name}
-              </button>
-            ))}
+                    (country === startCountry || country === endCountry) &&
+                      'bg-terminal/60',
+                  )}
+                  country={country}
+                  {...createCountryPillEvents(country)}
+                />
+              ))}
+            </div>
+
+            <div className='text-lg'>
+              <Dot />
+              You revealed{' '}
+              <span className='font-bold'>{revealedCountries.length}</span>{' '}
+              countries in total:
+            </div>
+
+            <div className='flex gap-1 flex-wrap ml-8'>
+              {revealedCountries.map(country => (
+                <CountryPill
+                  key={country.id}
+                  className={tw(
+                    'bg-connected/60',
+                    connectedRevealedSuperfluously.includes(country) &&
+                      'bg-connected/20',
+                    !connectedRevealedCountries.includes(country) &&
+                      'bg-text/20',
+                  )}
+                  country={country}
+                  {...createCountryPillEvents(country)}
+                />
+              ))}
+            </div>
+
+            {!isWinningPathOptimal && (
+              <>
+                <div className='text-lg'>
+                  <Dot />
+                  The optimal path is{' '}
+                  <span className='font-bold'>{currentPath.length}</span>{' '}
+                  countries long:
+                </div>
+
+                <div className='flex gap-1 flex-wrap ml-8'>
+                  {currentPath.map(country => (
+                    <CountryPill
+                      key={country.id}
+                      className={tw(
+                        'bg-connected/60',
+                        (country === startCountry || country === endCountry) &&
+                          'bg-terminal/60',
+                        !winningPath.includes(country) && 'bg-text/20!',
+                      )}
+                      country={country}
+                      {...createCountryPillEvents(country)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-        </div>
+        )}
+
+        {!isRoundComplete && (
+          <div className='flex flex-col gap-2 bg-background/40 backdrop-blur-2xl rounded-lg border border-text/30 shadow-sm/20 p-2'>
+            <div className='flex items-center gap-1'>
+              <input
+                className={tw(
+                  'flex-1 p-2 focus:outline-none bg-transparent cursor-default',
+                  term.length === 0 && 'caret-transparent',
+                )}
+                placeholder='Start typing to reveal a country...'
+                tabIndex={-1}
+                disabled={isRoundComplete}
+                value={term}
+                onChange={e => {
+                  setSelectedSuggestionIndex(0);
+                  setTerm(e.target.value);
+                }}
+                ref={inputRef}
+                autoFocus
+                {...bindGesture()}
+              />
+
+              <Button
+                className='self-stretch items-center gap-2 flex border-none shadow-none'
+                onClick={() => {
+                  if (showAllCountries) {
+                    setShowAllNames(false);
+                  }
+
+                  setShowAllCountries(prev => !prev);
+                }}
+              >
+                {showAllCountries ? <SquareCheck /> : <Square />}{' '}
+                <Map className='opacity-50' />
+              </Button>
+
+              <Button
+                disabled={!showAllCountries}
+                className='self-stretch items-center gap-2 flex border-none shadow-none'
+                onClick={() => setShowAllNames(prev => !prev)}
+              >
+                {showAllNames ? <SquareCheck /> : <Square />}{' '}
+                <Type className='opacity-50' />
+              </Button>
+            </div>
+
+            <div className='flex gap-1 flex-wrap'>
+              {[startCountry, ...revealedCountries, endCountry].map(country => (
+                <CountryPill
+                  key={country.id}
+                  className={tw(
+                    connectedRevealedCountries.some(c => c.id === country.id) &&
+                      'bg-connected/60',
+                    (country === startCountry || country === endCountry) &&
+                      'bg-terminal/60',
+                  )}
+                  country={country}
+                  {...createCountryPillEvents(country)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

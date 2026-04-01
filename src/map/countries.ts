@@ -83,4 +83,5 @@ export const countries = countryGeoData.features.map(feature => ({
   feature,
 }));
 
+
 export type Country = (typeof countries)[number];

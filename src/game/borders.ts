@@ -67,7 +67,7 @@ export const borders = {
     'Angola',
     'Congo',
   ],
-  Djibouti: ['Eritrea', 'Ethiopia', 'Somalia', 'Somaliland', 'Yemen'],
+  Djibouti: ['Eritrea', 'Ethiopia', 'Somaliland', 'Yemen'],
   Egypt: ['Libya', 'Sudan', 'Israel', 'Palestine'],
   'Equatorial Guinea': ['Cameroon', 'Gabon'],
   Eritrea: ['Sudan', 'Ethiopia', 'Djibouti', 'Yemen'],
@@ -136,7 +136,7 @@ export const borders = {
   Senegal: ['Mauritania', 'Gambia', 'Guinea-Bissau', 'Guinea', 'Mali'],
   Seychelles: [],
   'Sierra Leone': ['Guinea', 'Liberia'],
-  Somalia: ['Djibouti', 'Ethiopia', 'Kenya', 'Somaliland'],
+  Somalia: ['Ethiopia', 'Kenya', 'Somaliland'],
   Somaliland: ['Ethiopia', 'Djibouti', 'Somalia'],
   'South Africa': [
     'Namibia',
@@ -247,7 +247,7 @@ export const borders = {
     'Switzerland',
   ],
   Greece: ['Bulgaria', 'Macedonia', 'Albania', 'Turkey'],
-  Greenland: ['Canada', 'Iceland'], // exception: ~290 km to Iceland
+  Greenland: ['Canada', 'Iceland', 'Norway'], // exception: ~290 km to Iceland, ~700 km to Norway's Svalbard
   Hungary: [
     'Austria',
     'Slovakia',
@@ -286,7 +286,7 @@ export const borders = {
   ],
   Netherlands: ['Belgium', 'Germany'],
   'Northern Cyprus': ['Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
-  Norway: ['Sweden', 'Finland', 'Russia'],
+  Norway: ['Sweden', 'Finland', 'Russia', 'Greenland'],
   Poland: [
     'Germany',
     'Czechia',

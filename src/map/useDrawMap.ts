@@ -13,13 +13,18 @@ import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import {
   connectedRevealedCountriesAtom,
+  connectedRevealedSuperfluouslyAtom,
+  currentPathAtom,
   endCountryAtom,
+  isRoundCompleteAtom,
   revealedCountriesAtom,
   showAllCountriesAtom,
   showAllNamesAtom,
   startCountryAtom,
+  winningPathAtom,
 } from '../game/state';
 import { getColors } from './getColors';
+import { countryByName } from '../game/countryByName';
 
 type Props = {
   scale: SpringValue<number>;
@@ -85,8 +90,17 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const revealedCountries = store.get(revealedCountriesAtom);
     const startCountry = store.get(startCountryAtom);
     const endCountry = store.get(endCountryAtom);
-    const showNames = store.get(showAllNamesAtom);
-    const showAllCountries = store.get(showAllCountriesAtom);
+    const isRoundComplete = store.get(isRoundCompleteAtom);
+    const winningPath = store.get(winningPathAtom);
+    const currentPath = store.get(currentPathAtom);
+    const revealedConnectedSuperfluously = store.get(
+      connectedRevealedSuperfluouslyAtom,
+    );
+
+    const showNames = isRoundComplete ? true : store.get(showAllNamesAtom);
+    const showAllCountries = isRoundComplete
+      ? true
+      : store.get(showAllCountriesAtom);
     const hoveredCountry = store.get(hoveredCountryAtom);
     const centeredCountries = store.get(lastCenteredCountriesAtom);
     const mouseGlobePos = store.get(mouseGlobePosAtom);
@@ -121,12 +135,22 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
     for (let i = 0; i < countryGeoData.features.length; i++) {
       const feature = countryGeoData.features[i];
-      const isRevealed = revealedCountries.some(c => c.id === feature.id);
+      const country = countryByName.get(feature.properties.name)!;
+
+      const isRevealed =
+        revealedCountries.some(c => c.id === feature.id) ||
+        (isRoundComplete && winningPath.some(c => c.id === feature.id));
+
       const isStart = feature.id === startCountry?.id;
+
       const isConnectedRevealed = connectedRevealedCountries.some(
         c => c.id === feature.id,
       );
+
       const isEnd = feature.id === endCountry?.id;
+
+      const isConnectedRevealedSuperfluously =
+        revealedConnectedSuperfluously.includes(country);
 
       if (!showAllCountries && !isRevealed && !isStart && !isEnd) continue;
 
@@ -144,15 +168,24 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       pathGen(feature);
 
       if (isStart || isEnd) {
-        ctx.fillStyle = colors.terminal;
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.terminalHover : colors.terminal;
+      } else if (isConnectedRevealedSuperfluously) {
+        ctx.fillStyle =
+          isHovered || isCentered
+            ? colors.connectedSuperfluouslyHover
+            : colors.connectedSuperfluously;
       } else if (isConnectedRevealed) {
-        ctx.fillStyle = colors.connected;
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.connectedHover : colors.connected;
       } else if (isRevealed) {
         ctx.fillStyle =
           isHovered || isCentered ? colors.revealedHover : colors.revealed;
       } else {
-        ctx.fillStyle = isHovered ? colors.unrevealedHover : colors.unrevealed;
+        ctx.fillStyle =
+          isHovered || isCentered ? colors.unrevealedHover : colors.unrevealed;
       }
+
       ctx.fill();
       ctx.stroke();
 
@@ -169,6 +202,9 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
           ctx.strokeStyle = ctx.fillStyle;
           ctx.lineWidth = 0.75;
           ctx.stroke();
+
+          ctx.strokeStyle = colors.countryBorder;
+          ctx.lineWidth = 0.4;
         }
       }
     }
