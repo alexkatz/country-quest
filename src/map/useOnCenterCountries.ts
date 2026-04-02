@@ -1,6 +1,6 @@
 import { geoBounds } from 'd3-geo';
 import { useEffectEvent, useEffect } from 'react';
-import { DEG, GLOBE_SIZE, MIN_SCALE, lastCenteredCountriesAtom } from './state';
+import * as mapState from './state';
 import { type CenterCountriesHandler, onCenterCountries } from './globeEvents';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
@@ -26,21 +26,21 @@ export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
     }
 
     const mag = Math.sqrt(x * x + y * y + z * z);
-    const centerLon = Math.atan2(y, x) / DEG;
-    const centerLat = Math.asin(z / mag) / DEG;
+    const centerLon = Math.atan2(y, x) / mapState.DEG;
+    const centerLat = Math.asin(z / mag) / mapState.DEG;
 
     rotX.start(-centerLon);
     rotY.start(-centerLat);
 
-    const centerLonRad = centerLon * DEG;
-    const centerLatRad = centerLat * DEG;
+    const centerLonRad = centerLon * mapState.DEG;
+    const centerLatRad = centerLat * mapState.DEG;
     const boundaryPoints = countries.flatMap(country => {
       const [[west, south], [east, north]] = geoBounds(country.feature);
       return [
-        [west * DEG, south * DEG],
-        [east * DEG, north * DEG],
-        [west * DEG, north * DEG],
-        [east * DEG, south * DEG],
+        [west * mapState.DEG, south * mapState.DEG],
+        [east * mapState.DEG, north * mapState.DEG],
+        [west * mapState.DEG, north * mapState.DEG],
+        [east * mapState.DEG, south * mapState.DEG],
       ] as [number, number][];
     });
 
@@ -61,16 +61,18 @@ export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
 
     const MAX_CENTER_SCALE = 400;
     const fitScale =
-      maxAngDist > 0.01 ? ((GLOBE_SIZE / 2) * 0.6) / Math.sin(maxAngDist) : 500;
+      maxAngDist > 0.01
+        ? ((mapState.GLOBE_SIZE / 2) * 0.6) / Math.sin(maxAngDist)
+        : 500;
     const currentScale = scale.get();
     const newScale =
       currentScale > MAX_CENTER_SCALE
         ? Math.min(currentScale, fitScale)
         : Math.min(MAX_CENTER_SCALE, fitScale);
 
-    scale.start(Math.max(MIN_SCALE, newScale));
+    scale.start(Math.max(mapState.MIN_SCALE, newScale));
 
-    store.set(lastCenteredCountriesAtom, countries);
+    store.set(mapState.lastCenteredCountriesAtom, countries);
   }) satisfies CenterCountriesHandler);
 
   useEffect(() => onCenterCountries(centerCountries), []);

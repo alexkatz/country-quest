@@ -1,27 +1,11 @@
 import { useGesture } from '@use-gesture/react';
 import { useStore } from 'jotai';
-import {
-  DEFAULT_SCALE,
-  GLOBE_SIZE,
-  hoveredCountryAtom,
-  lastCenteredCountriesAtom,
-  mouseGlobePosAtom,
-  MAX_SCALE,
-  MIN_SCALE,
-  ROTATION_SENSITIVITY,
-  ZOOM_SENSITIVITY,
-} from './state';
+import * as mapState from './state';
 import type { SpringValue } from '@react-spring/web';
 import type { RefObject } from 'react';
 import { geoContains, geoOrthographic } from 'd3-geo';
 import { countryGeoData, type Country } from './countries';
-import {
-  endCountryAtom,
-  isRoundCompleteAtom,
-  revealedCountriesAtom,
-  showAllCountriesAtom,
-  startCountryAtom,
-} from '../game/state';
+import * as gameState from '../game/state';
 import { countryByName } from '../game/countryByName';
 
 type Props = {
@@ -45,15 +29,16 @@ export const useMapGestures = ({
       onDrag({ movement: [mx, my], memo, tap, first }) {
         if (tap) return;
 
-        store.set(lastCenteredCountriesAtom, undefined);
-        store.set(hoveredCountryAtom, undefined);
+        store.set(mapState.lastCenteredCountriesAtom, undefined);
+        store.set(mapState.hoveredCountryAtom, undefined);
 
         const start = first
           ? [rotX.get(), rotY.get(), rotZ.get()]
           : (memo as [number, number, number]);
 
         const scaledRotationSensitivity =
-          ROTATION_SENSITIVITY * (DEFAULT_SCALE / scale.get());
+          mapState.ROTATION_SENSITIVITY *
+          (mapState.DEFAULT_SCALE / scale.get());
 
         rotX.start(start[0] + mx * scaledRotationSensitivity);
 
@@ -72,8 +57,11 @@ export const useMapGestures = ({
       onWheel({ delta: [, dy] }) {
         scale.start(
           Math.max(
-            MIN_SCALE,
-            Math.min(MAX_SCALE, scale.get() - dy * ZOOM_SENSITIVITY),
+            mapState.MIN_SCALE,
+            Math.min(
+              mapState.MAX_SCALE,
+              scale.get() - dy * mapState.ZOOM_SENSITIVITY,
+            ),
           ),
         );
       },
@@ -88,7 +76,7 @@ export const useMapGestures = ({
         const displaySize = Math.min(cssWidth, cssHeight);
         const offsetX = (cssWidth - displaySize) / 2;
         const offsetY = (cssHeight - displaySize) / 2;
-        const globeScale = GLOBE_SIZE / displaySize;
+        const globeScale = mapState.GLOBE_SIZE / displaySize;
 
         const mx = (event.clientX - rect.left - offsetX) * globeScale;
         const my = (event.clientY - rect.top - offsetY) * globeScale;
@@ -100,17 +88,17 @@ export const useMapGestures = ({
 
         const projection = geoOrthographic()
           .scale(s)
-          .translate([GLOBE_SIZE / 2, GLOBE_SIZE / 2])
+          .translate([mapState.GLOBE_SIZE / 2, mapState.GLOBE_SIZE / 2])
           .rotate([rx, ry, rz]);
 
         const lonLat = projection.invert?.([mx, my]);
-        const isRoundComplete = store.get(isRoundCompleteAtom);
-        const revealed = store.get(revealedCountriesAtom);
+        const isRoundComplete = store.get(gameState.isRoundCompleteAtom);
+        const revealed = store.get(gameState.revealedCountriesAtom);
         const showAll = isRoundComplete
           ? true
-          : store.get(showAllCountriesAtom);
-        const startCountry = store.get(startCountryAtom);
-        const endCountry = store.get(endCountryAtom);
+          : store.get(gameState.showAllCountriesAtom);
+        const startCountry = store.get(gameState.startCountryAtom);
+        const endCountry = store.get(gameState.endCountryAtom);
 
         let found: Country | undefined;
         if (lonLat) {
@@ -127,19 +115,19 @@ export const useMapGestures = ({
           }
         }
 
-        store.set(mouseGlobePosAtom, [mx, my]);
+        store.set(mapState.mouseGlobePosAtom, [mx, my]);
 
-        if (found !== store.get(hoveredCountryAtom)) {
-          store.set(hoveredCountryAtom, found);
+        if (found !== store.get(mapState.hoveredCountryAtom)) {
+          store.set(mapState.hoveredCountryAtom, found);
           if (found) {
-            store.set(lastCenteredCountriesAtom, undefined);
+            store.set(mapState.lastCenteredCountriesAtom, undefined);
           }
         }
       },
 
       onMouseLeave() {
-        store.set(hoveredCountryAtom, undefined);
-        store.set(mouseGlobePosAtom, undefined);
+        store.set(mapState.hoveredCountryAtom, undefined);
+        store.set(mapState.mouseGlobePosAtom, undefined);
       },
     },
     { drag: { filterTaps: true } },

@@ -34,9 +34,7 @@ export const getRandomPath = (props: {
     }
 
     // choose neighbors in random order, this is where the randomness of the path is introduced
-    const neighbors = getNeighbors(current.name).toSorted(
-      () => Math.random() - 0.5,
-    );
+    const neighbors = getNeighbors(current).toSorted(() => Math.random() - 0.5);
 
     for (const neighbor of neighbors) {
       if (!visited.has(neighbor)) {

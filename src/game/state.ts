@@ -26,7 +26,7 @@ export const showColorKeyAtom = atomWithStorage(
 
 export const roundAtom = atom(1);
 export const maxPathSizeAtom = atom(INITIAL_MAX_PATH_SIZE);
-
+export const termAtom = atom('');
 export const startCountryAtom = atom(INITIAL_PATH.at(0)!);
 export const endCountryAtom = atom(INITIAL_PATH.at(-1)!);
 export const optimalPathAtom = atom(INITIAL_PATH);

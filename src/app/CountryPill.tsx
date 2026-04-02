@@ -12,8 +12,10 @@ export const CountryPill = (props: {
 }) => {
   return (
     <button
+      data-country-pill
       className={tw(
         'flex items-center gap-1 cursor-pointer interactive-opacity rounded-lg px-2 border border-text/10 shadow-sm/20 bg-text/20',
+        'focus:outline-2 focus:outline-text',
         props.className,
       )}
       onMouseEnter={props.onMouseEnter}

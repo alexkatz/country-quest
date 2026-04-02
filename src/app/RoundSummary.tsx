@@ -1,0 +1,133 @@
+import { useAtom, useAtomValue } from 'jotai';
+import * as gameState from '../game/state';
+import { Info, Dot } from 'lucide-react';
+import { tw } from '../layout/tw';
+import { CountryPill } from './CountryPill';
+import { createCountryPillEvents } from './createCountryPillEvents';
+
+export const RoundSummary = () => {
+  const winningPath = useAtomValue(gameState.winningPathAtom);
+  const optimalPath = useAtomValue(gameState.optimalPathAtom);
+  const missedOptimalPath = useAtomValue(gameState.missedOptimalPathAtom);
+  const revealedNonOptimal = useAtomValue(gameState.revealedNonOptimalAtom);
+  const isWinningPathOptimal = winningPath.length === optimalPath.length;
+  const startCountry = useAtomValue(gameState.startCountryAtom);
+  const endCountry = useAtomValue(gameState.endCountryAtom);
+  const [isColorKeyOpen, setIsColorKeyOpen] = useAtom(
+    gameState.showColorKeyAtom,
+  );
+  const revealedCountries = useAtomValue(gameState.revealedCountriesAtom);
+  const connectedRevealedCountries = useAtomValue(
+    gameState.connectedRevealedCountriesAtom,
+  );
+
+  return (
+    <div className='bg-background/30 relative rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-2 shadow-sm/20 p-4'>
+      <button
+        className={tw(
+          'absolute top-2 right-2 cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
+          isColorKeyOpen && 'bg-text/30 border-text/30',
+          !isColorKeyOpen && 'shadow-transparent',
+        )}
+        onClick={() => setIsColorKeyOpen(prev => !prev)}
+      >
+        <Info />
+      </button>
+
+      <div className='text-2xl leading-8'>
+        You connected{' '}
+        <CountryPill
+          className='font-bold bg-terminal/60 inline'
+          country={startCountry}
+          {...createCountryPillEvents(startCountry)}
+        />{' '}
+        to{' '}
+        <CountryPill
+          className='font-bold bg-terminal/60 inline'
+          country={endCountry}
+          {...createCountryPillEvents(endCountry)}
+        />
+      </div>
+
+      <div className='text-lg'>
+        <Dot />
+        Your path is
+        {isWinningPathOptimal ? (
+          <span>
+            {' '}
+            <span className='font-bold'>optimal</span>, with
+          </span>
+        ) : (
+          ' '
+        )}{' '}
+        <span className='font-bold'>{winningPath.length}</span> countries:
+      </div>
+
+      <div className='flex gap-1 flex-wrap ml-8'>
+        {winningPath.map(country => (
+          <CountryPill
+            key={country.id}
+            className={tw(
+              'bg-connected/60',
+              (country === startCountry || country === endCountry) &&
+                'bg-terminal/60',
+            )}
+            country={country}
+            {...createCountryPillEvents(country)}
+          />
+        ))}
+      </div>
+
+      {!isWinningPathOptimal && (
+        <>
+          <div className='text-lg'>
+            <Dot />
+            The optimal path is{' '}
+            <span className='font-bold'>{optimalPath.length}</span> countries:
+          </div>
+
+          <div className='flex gap-1 flex-wrap ml-8'>
+            {optimalPath.map(country => (
+              <CountryPill
+                key={country.id}
+                className={tw(
+                  'bg-connected/60',
+                  (country === startCountry || country === endCountry) &&
+                    'bg-terminal/60',
+                  !winningPath.includes(country) && 'bg-text/20!',
+                  missedOptimalPath.includes(country) && 'bg-optimal/80!',
+                )}
+                country={country}
+                {...createCountryPillEvents(country)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      <div className='text-lg'>
+        <Dot />
+        You revealed{' '}
+        <span className='font-bold'>{revealedCountries.length}</span> countries
+        in total:
+      </div>
+
+      <div className='flex gap-1 flex-wrap ml-8'>
+        {revealedCountries.map(country => (
+          <CountryPill
+            key={country.id}
+            className={tw(
+              'bg-connected/60',
+              (revealedNonOptimal.includes(country) ||
+                !connectedRevealedCountries.includes(country)) &&
+                'bg-text/20',
+              missedOptimalPath.includes(country) && 'bg-optimal/80!',
+            )}
+            country={country}
+            {...createCountryPillEvents(country)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};

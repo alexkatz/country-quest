@@ -1,27 +1,10 @@
 import { geoOrthographic, geoPath, geoCentroid } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
-import {
-  GLOBE_SIZE,
-  hoveredCountryAtom,
-  lastCenteredCountriesAtom,
-  mouseGlobePosAtom,
-  DEG,
-} from './state';
+import * as mapState from './state';
+import * as gameState from '../game/state';
 import { countryGeoData, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
-import {
-  connectedRevealedCountriesAtom,
-  endCountryAtom,
-  isRoundCompleteAtom,
-  missedOptimalPathAtom,
-  revealedCountriesAtom,
-  revealedNonOptimalAtom,
-  showAllCountriesAtom,
-  showAllNamesAtom,
-  startCountryAtom,
-  winningPathAtom,
-} from '../game/state';
 import { getColors } from './getColors';
 import { countryByName } from '../game/countryByName';
 
@@ -61,7 +44,10 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.save();
     ctx.scale(dpr, dpr);
     ctx.translate(offsetX, offsetY);
-    ctx.scale(displaySize / GLOBE_SIZE, displaySize / GLOBE_SIZE);
+    ctx.scale(
+      displaySize / mapState.GLOBE_SIZE,
+      displaySize / mapState.GLOBE_SIZE,
+    );
 
     const rx = rotX.get();
     const ry = rotY.get();
@@ -70,7 +56,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
     const projection = geoOrthographic()
       .scale(s)
-      .translate([GLOBE_SIZE / 2, GLOBE_SIZE / 2])
+      .translate([mapState.GLOBE_SIZE / 2, mapState.GLOBE_SIZE / 2])
       .rotate([rx, ry, rz]);
 
     const pathGen = geoPath(projection, ctx);
@@ -86,43 +72,44 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.stroke();
 
     // Countries
-    const revealedCountries = store.get(revealedCountriesAtom);
-    const startCountry = store.get(startCountryAtom);
-    const endCountry = store.get(endCountryAtom);
-    const isRoundComplete = store.get(isRoundCompleteAtom);
-    const winningPath = store.get(winningPathAtom);
-    const missedOptimalPath = store.get(missedOptimalPathAtom);
-    const revealedNonOptimal = store.get(revealedNonOptimalAtom);
-
-    const showNames = isRoundComplete ? true : store.get(showAllNamesAtom);
+    const revealed = store.get(gameState.revealedCountriesAtom);
+    const start = store.get(gameState.startCountryAtom);
+    const end = store.get(gameState.endCountryAtom);
+    const isRoundComplete = store.get(gameState.isRoundCompleteAtom);
+    const winningPath = store.get(gameState.winningPathAtom);
+    const missedOptimalPath = store.get(gameState.missedOptimalPathAtom);
+    const revealedNonOptimal = store.get(gameState.revealedNonOptimalAtom);
+    const showNames = isRoundComplete
+      ? true
+      : store.get(gameState.showAllNamesAtom);
     const showAllCountries = isRoundComplete
       ? true
-      : store.get(showAllCountriesAtom);
-    const hoveredCountry = store.get(hoveredCountryAtom);
-    const centeredCountries = store.get(lastCenteredCountriesAtom);
-    const mouseGlobePos = store.get(mouseGlobePosAtom);
+      : store.get(gameState.showAllCountriesAtom);
+    const hovered = store.get(mapState.hoveredCountryAtom);
+    const centered = store.get(mapState.lastCenteredCountriesAtom);
+    const mouseGlobePos = store.get(mapState.mouseGlobePosAtom);
 
     const connectedRevealedCountries = store.get(
-      connectedRevealedCountriesAtom,
+      gameState.connectedRevealedCountriesAtom,
     );
 
-    const viewLonRad = -rx * DEG;
-    const viewLatRad = -ry * DEG;
+    const viewLonRad = -rx * mapState.DEG;
+    const viewLatRad = -ry * mapState.DEG;
 
     const labelCountries = new Set<Country>();
 
     if (
-      hoveredCountry &&
+      hovered &&
       (showNames ||
-        revealedCountries.includes(hoveredCountry) ||
-        hoveredCountry.id === startCountry?.id ||
-        hoveredCountry.id === endCountry?.id)
+        revealed.includes(hovered) ||
+        hovered === start ||
+        hovered === end)
     ) {
-      labelCountries.add(hoveredCountry);
+      labelCountries.add(hovered);
     }
 
-    centeredCountries?.forEach(c => {
-      if (showNames || revealedCountries.length === 0) {
+    centered?.forEach(c => {
+      if (showNames || revealed.length === 0) {
         labelCountries.add(c);
       }
     });
@@ -135,11 +122,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       const country = countryByName.get(feature.properties.name)!;
 
       const isRevealed =
-        revealedCountries.includes(country) ||
+        revealed.includes(country) ||
         (isRoundComplete && winningPath.includes(country));
 
-      const isStart = country === startCountry;
-      const isEnd = country === endCountry;
+      const isStart = country === start;
+      const isEnd = country === end;
 
       if (!showAllCountries && !isRevealed && !isStart && !isEnd) continue;
 
@@ -149,8 +136,8 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
         Math.cos(latRad) * Math.cos(viewLatRad) * Math.cos(lonRad - viewLonRad);
       if (dot < -0.1) continue;
 
-      const isHovered = country === hoveredCountry;
-      const isCentered = centeredCountries?.includes(country);
+      const isHovered = country === hovered;
+      const isCentered = centered?.includes(country);
       const isMissedOptimal = missedOptimalPath.includes(country);
       const isConnectedRevealed = connectedRevealedCountries.includes(country);
       const isRevealedNonOptimal = revealedNonOptimal.includes(country);
@@ -214,7 +201,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
         let x: number;
         let y: number;
 
-        if (country.id === hoveredCountry?.id && mouseGlobePos) {
+        if (country === hovered && mouseGlobePos) {
           x = mouseGlobePos[0];
           y = mouseGlobePos[1] - 10;
         } else {

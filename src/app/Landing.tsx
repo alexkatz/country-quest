@@ -5,11 +5,11 @@ import { DebugInfo } from './DebugInfo';
 import { useEffect } from 'react';
 import { emitCenterCountries } from '../map/globeEvents';
 import { useAtomValue } from 'jotai';
-import { endCountryAtom, startCountryAtom } from '../game/state';
+import * as gameState from '../game/state';
 
 export const Landing = () => {
-  const startCountry = useAtomValue(startCountryAtom);
-  const endCountry = useAtomValue(endCountryAtom);
+  const startCountry = useAtomValue(gameState.startCountryAtom);
+  const endCountry = useAtomValue(gameState.endCountryAtom);
 
   useEffect(() => {
     emitCenterCountries([startCountry, endCountry]);

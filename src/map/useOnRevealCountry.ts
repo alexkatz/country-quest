@@ -1,10 +1,6 @@
 import { useStore } from 'jotai';
 import { useEffect } from 'react';
-import {
-  endCountryAtom,
-  revealedCountriesAtom,
-  startCountryAtom,
-} from '../game/state';
+import { revealedCountriesAtom } from '../game/state';
 import { emitCenterCountries } from './globeEvents';
 
 export const useOnRevealCountry = () => {
@@ -12,9 +8,10 @@ export const useOnRevealCountry = () => {
 
   useEffect(() => {
     return store.sub(revealedCountriesAtom, () => {
-      const startCountry = store.get(startCountryAtom);
-      const endCountry = store.get(endCountryAtom);
-      emitCenterCountries([startCountry, endCountry]);
+      const revealedCountries = store.get(revealedCountriesAtom);
+      const lastRevealedCountry =
+        revealedCountries[revealedCountries.length - 1];
+      emitCenterCountries([lastRevealedCountry]);
     });
   }, [store]);
 };
