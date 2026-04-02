@@ -48,6 +48,33 @@ export const useOnKeyDown = (props: {
       return;
     }
 
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      const rows = Array.from(
+        props.navRef.current?.querySelectorAll<HTMLElement>('[data-pill-row]') ?? [],
+      );
+      if (rows.length === 0) return;
+      e.preventDefault();
+      const focused = document.activeElement as HTMLElement;
+      if (!focused?.hasAttribute('data-country-pill')) {
+        const edgeRow = rows[e.key === 'ArrowDown' ? 0 : rows.length - 1];
+        const edgePills = Array.from(edgeRow.querySelectorAll<HTMLElement>('[data-country-pill]'));
+        edgePills[e.key === 'ArrowDown' ? 0 : edgePills.length - 1]?.focus();
+        return;
+      }
+      const rowIndex = rows.findIndex(row => row.contains(focused));
+      if (rowIndex === -1) return;
+      const nextRowIndex = e.key === 'ArrowDown' ? rowIndex + 1 : rowIndex - 1;
+      if (nextRowIndex < 0 || nextRowIndex >= rows.length) return;
+      const pillIndexInRow = Array.from(
+        rows[rowIndex].querySelectorAll<HTMLElement>('[data-country-pill]'),
+      ).indexOf(focused);
+      const nextPills = Array.from(
+        rows[nextRowIndex].querySelectorAll<HTMLElement>('[data-country-pill]'),
+      );
+      nextPills[Math.min(pillIndexInRow, nextPills.length - 1)]?.focus();
+      return;
+    }
+
     if (e.key === 'Escape') {
       emitCenterCountries([startCountry, endCountry]);
       if (document.activeElement?.hasAttribute('data-country-pill')) {

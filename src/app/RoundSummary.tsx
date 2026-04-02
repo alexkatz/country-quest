@@ -34,7 +34,7 @@ export const RoundSummary = () => {
         <Info />
       </button>
 
-      <div className='text-2xl leading-8'>
+      <div data-pill-row className='text-2xl leading-8'>
         You connected{' '}
         <CountryPill
           className='font-bold bg-terminal/60 inline'
@@ -63,7 +63,7 @@ export const RoundSummary = () => {
         <span className='font-bold'>{winningPath.length}</span> countries:
       </div>
 
-      <div className='flex gap-1 flex-wrap ml-8'>
+      <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
         {winningPath.map(country => (
           <CountryPill
             key={country.id}
@@ -86,7 +86,7 @@ export const RoundSummary = () => {
             <span className='font-bold'>{optimalPath.length}</span> countries:
           </div>
 
-          <div className='flex gap-1 flex-wrap ml-8'>
+          <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
             {optimalPath.map(country => (
               <CountryPill
                 key={country.id}
@@ -112,7 +112,7 @@ export const RoundSummary = () => {
         in total:
       </div>
 
-      <div className='flex gap-1 flex-wrap ml-8'>
+      <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
         {revealedCountries.map(country => (
           <CountryPill
             key={country.id}
