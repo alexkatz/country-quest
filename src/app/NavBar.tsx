@@ -5,10 +5,12 @@ import * as gameState from '../game/state';
 import { useOnKeyDown } from './useOnKeyDown';
 import { RoundSummary } from './RoundSummary';
 import { ColorKey } from './ColorKey';
-import { NavInput } from './NavInput';
+import { RoundActions } from './RoundActions';
+import { Help } from './Help';
 
 export const NavBar = (props: { className?: string }) => {
   const isColorKeyOpen = useAtomValue(gameState.showColorKeyAtom);
+  const isHelpOpen = useAtomValue(gameState.showHelpAtom);
   const isRoundComplete = useAtomValue(gameState.isRoundCompleteAtom);
   const inputRef = useRef<HTMLInputElement>(null);
   const navRef = useRef<HTMLElement>(null);
@@ -19,8 +21,9 @@ export const NavBar = (props: { className?: string }) => {
     <nav ref={navRef} className={tw('z-50', props.className)}>
       <div className='flex relative flex-col gap-2 p-2 w-full max-w-5xl sm:mx-auto sm:px-2'>
         {isRoundComplete && isColorKeyOpen && <ColorKey />}
+        {isHelpOpen && <Help />}
         {isRoundComplete && <RoundSummary />}
-        {!isRoundComplete && <NavInput ref={inputRef} />}
+        {!isRoundComplete && <RoundActions ref={inputRef} />}
       </div>
     </nav>
   );

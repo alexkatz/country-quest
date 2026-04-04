@@ -24,6 +24,10 @@ export const showColorKeyAtom = atomWithStorage(
   { getOnInit: true },
 );
 
+export const showHelpAtom = atomWithStorage('show-help', true, undefined, {
+  getOnInit: true,
+});
+
 export const roundAtom = atom(1);
 export const maxPathSizeAtom = atom(INITIAL_MAX_PATH_SIZE);
 export const termAtom = atom('');

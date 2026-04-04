@@ -5,12 +5,12 @@ import { countries, type Country } from '../map/countries';
 import * as gameState from '../game/state';
 import { useGesture } from '@use-gesture/react';
 import { tw } from '../layout/tw';
-import { Map, Square, SquareCheck, Type } from 'lucide-react';
+import { Info, Map, Square, SquareCheck, Type } from 'lucide-react';
 import { Button } from '../layout/common/Button';
 import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
 
-export const NavInput = (props: {
+export const RoundActions = (props: {
   ref: RefObject<HTMLInputElement | null>;
 }) => {
   const [revealedCountries, setRevealedCountries] = useAtom(
@@ -31,6 +31,8 @@ export const NavInput = (props: {
     selectedSuggestionIndexAtom,
   );
   const [term, setTerm] = useAtom(gameState.termAtom);
+
+  const [isHelpOpen, setHelpOpen] = useAtom(gameState.showHelpAtom);
 
   const suggestions =
     term.length === 0
@@ -147,6 +149,17 @@ export const NavInput = (props: {
             {showAllNames ? <SquareCheck /> : <Square />}{' '}
             <Type className='opacity-50' />
           </Button>
+
+          <button
+            className={tw(
+              'cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
+              isHelpOpen && 'bg-text/30 border-text/30',
+              !isHelpOpen && 'shadow-transparent',
+            )}
+            onClick={() => setHelpOpen(prev => !prev)}
+          >
+            <Info />
+          </button>
         </div>
 
         <div className='flex gap-1 flex-wrap'>
