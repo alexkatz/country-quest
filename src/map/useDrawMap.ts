@@ -1,4 +1,4 @@
-import { geoOrthographic, geoPath, geoCentroid } from 'd3-geo';
+import { geoOrthographic, geoPath, geoCentroid, geoGraticule } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
 import * as mapState from './state';
 import * as gameState from '../game/state';
@@ -69,6 +69,14 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.fill();
     ctx.strokeStyle = colors.globeBorder;
     ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Graticule (lat/lon grid lines)
+    const graticule = geoGraticule().step([15, 15])();
+    ctx.beginPath();
+    pathGen(graticule);
+    ctx.strokeStyle = colors.graticuleLine;
+    ctx.lineWidth = 0.25;
     ctx.stroke();
 
     // Countries

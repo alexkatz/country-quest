@@ -1,4 +1,4 @@
-type Colors = {
+export type Colors = {
   surface: string;
   text: string;
   terminal: string;
@@ -9,6 +9,7 @@ type Colors = {
   connectedHover: string;
   globeBorder: string;
   countryBorder: string;
+  graticuleLine: string;
   revealed: string;
   revealedHover: string;
   unrevealed: string;
@@ -32,23 +33,24 @@ export const getColors = (): Colors => {
     surface,
     text,
 
-    connected: `color-mix(in oklch, ${connected} 80%, transparent)`,
-    connectedHover: `color-mix(in oklch, ${connected} 60%, transparent)`,
+    connected: `color-mix(in oklch, ${connected} 80%, ${surface})`,
+    connectedHover: `color-mix(in oklch, ${connected} 60%, ${surface})`,
 
     terminal,
-    terminalHover: `color-mix(in oklch, ${terminal} 50%, transparent)`,
+    terminalHover: `color-mix(in oklch, ${terminal} 50%, ${surface})`,
 
-    optimal: `color-mix(in oklch, ${optimal} 80%, transparent)`,
-    optimalHover: `color-mix(in oklch, ${optimal} 60%, transparent)`,
+    optimal: `color-mix(in oklch, ${optimal} 80%, ${surface})`,
+    optimalHover: `color-mix(in oklch, ${optimal} 60%, ${surface})`,
 
-    globeBorder: `color-mix(in oklch, ${text} 30%, transparent)`,
-    countryBorder: `color-mix(in oklch, ${text} 50%, transparent)`,
+    globeBorder: `color-mix(in oklch, ${text} 30%, ${surface})`,
+    countryBorder: `color-mix(in oklch, ${text} 50%, ${surface})`,
+    graticuleLine: `color-mix(in oklch, ${text} 15%, ${surface})`,
 
-    revealed: `color-mix(in oklch, ${text} 60%, transparent)`,
-    revealedHover: `color-mix(in oklch, ${text} 40%, transparent)`,
+    revealed: `color-mix(in oklch, ${text} 60%, ${surface})`,
+    revealedHover: `color-mix(in oklch, ${text} 40%, ${surface})`,
 
-    unrevealed: `color-mix(in oklch, ${text} 10%, transparent)`,
-    unrevealedHover: `color-mix(in oklch, ${text} 30%, transparent)`,
+    unrevealed: `color-mix(in oklch, ${text} 10%, ${surface})`,
+    unrevealedHover: `color-mix(in oklch, ${text} 30%, ${surface})`,
 
     labelOutline: 'color-mix(in oklch, black 50%, transparent)',
   };
