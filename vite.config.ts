@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/country-quest/',
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
