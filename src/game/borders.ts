@@ -221,7 +221,7 @@ export const borders = {
   Czechia: ['Germany', 'Austria', 'Slovakia', 'Poland'],
   Denmark: ['Germany', 'Sweden'],
   Estonia: ['Latvia', 'Russia'],
-  'Faroe Islands': ['United Kingdom', 'Iceland', 'Norway'], // ~280 km to UK (Shetland), ~420 km to Iceland, ~680 km to Norway
+  'Faroe Islands': ['United Kingdom', 'Iceland'], // ~280 km to UK (Shetland), ~420 km to Iceland
   Finland: ['Sweden', 'Norway', 'Russia'],
   France: [
     'Spain',
@@ -276,7 +276,7 @@ export const borders = {
   ],
   Netherlands: ['Belgium', 'Germany'],
   'Northern Cyprus': ['Cyprus', 'Turkey'],
-  Norway: ['Sweden', 'Finland', 'Russia', 'Greenland', 'Faroe Islands'],
+  Norway: ['Sweden', 'Finland', 'Russia', 'Greenland'],
   Poland: [
     'Germany',
     'Czechia',

@@ -6,7 +6,7 @@ import type { Country } from '../map/countries';
 import { getNeighbors } from './getNeighbors';
 
 const INITIAL_MIN_PATH_SIZE = 5;
-const INITIAL_MAX_PATH_SIZE = 5;
+const INITIAL_MAX_PATH_SIZE = 10;
 
 const INITIAL_PATH = getRandomPath({
   length:
@@ -96,6 +96,13 @@ export const winningPathAtom = atom(get => {
   }
 
   return [];
+});
+
+export const roundScoreSummary = atom(get => {
+  if (!get(isRoundCompleteAtom)) return null;
+  const optimal = get(optimalPathAtom).length - 2;
+  const guesses = get(revealedCountriesAtom).length;
+  return { guesses, optimal, score: guesses - optimal };
 });
 
 export const revealedNonOptimalAtom = atom(get => {

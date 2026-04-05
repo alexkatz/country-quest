@@ -63,18 +63,22 @@ export const RoundActions = (props: {
         event.key === 'ArrowDown' ||
         (event.key === 'Tab' && !event.shiftKey)
       ) {
-        event.preventDefault();
-        event.stopPropagation();
-        setSelectedSuggestionIndex(prev =>
-          Math.min(prev + 1, suggestions.length - 1),
-        );
+        if (suggestions.length > 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          setSelectedSuggestionIndex(prev =>
+            Math.min(prev + 1, suggestions.length - 1),
+          );
+        }
       } else if (
         event.key === 'ArrowUp' ||
         (event.key === 'Tab' && event.shiftKey)
       ) {
-        event.preventDefault();
-        event.stopPropagation();
-        setSelectedSuggestionIndex(prev => Math.max(prev - 1, 0));
+        if (suggestions.length > 0) {
+          event.preventDefault();
+          event.stopPropagation();
+          setSelectedSuggestionIndex(prev => Math.max(prev - 1, 0));
+        }
       } else if (event.key === 'Enter') {
         event.preventDefault();
         event.stopPropagation();
@@ -168,7 +172,7 @@ export const RoundActions = (props: {
           </Button>
         </div>
 
-        <div className='flex gap-1 flex-wrap'>
+        <div data-pill-row className='flex gap-1 flex-wrap'>
           {[startCountry, ...revealedCountries, endCountry].map(country => (
             <CountryPill
               key={country.id}

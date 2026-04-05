@@ -20,6 +20,7 @@ export const RoundSummary = () => {
   const connectedRevealedCountries = useAtomValue(
     gameState.connectedRevealedCountriesAtom,
   );
+  const scoreSummary = useAtomValue(gameState.roundScoreSummary)!;
 
   return (
     <div className='bg-background/30 relative rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-2 shadow-sm/20 p-4'>
@@ -127,6 +128,22 @@ export const RoundSummary = () => {
             {...createCountryPillEvents(country)}
           />
         ))}
+      </div>
+
+      <div className='text-lg'>
+        <Dot />
+        Score:
+      </div>
+
+      <div className='ml-8'>
+        <div className='flex flex-col gap-1'>
+          <div className='italic opacity-50'>This round</div>
+          <div className='text-3xl font-bold'>
+            {scoreSummary.score === 0 ? '+0' : `+${scoreSummary.score}`}
+          </div>
+        </div>
+
+        {/* TODO: cumulative scoring across multiple rounds */}
       </div>
     </div>
   );

@@ -192,6 +192,26 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       }
     }
 
+    // Thick border for centered countries — drawn after main loop to sit on top
+    if (centered && centered.length > 0) {
+      ctx.strokeStyle = colors.text;
+      ctx.lineWidth = 1;
+      for (const country of centered) {
+        const [lonRad, latRad] = country.centroid;
+        const dot =
+          Math.sin(latRad) * Math.sin(viewLatRad) +
+          Math.cos(latRad) *
+            Math.cos(viewLatRad) *
+            Math.cos(lonRad - viewLonRad);
+        if (dot < -0.1) continue;
+        ctx.beginPath();
+        pathGen(country.feature);
+        ctx.stroke();
+      }
+      ctx.strokeStyle = colors.countryBorder;
+      ctx.lineWidth = 0.4;
+    }
+
     // Labels for hovered / centered countries
     if (labelCountries.size > 0) {
       ctx.font = 'medium 5px Geist, system-ui, sans-serif';
