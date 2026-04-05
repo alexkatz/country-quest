@@ -2,7 +2,6 @@
 // Country names match src/map/countries.ts after NAME_OVERRIDES are applied.
 // Includes land borders and water crossings up to ~200 km at their nearest points,
 // with three explicit exceptions noted where applicable.
-// Note: Morocco borders Spain via the Ceuta/Melilla enclaves.
 // Note: Russia borders Lithuania via the Kaliningrad exclave.
 // Note: Azerbaijan borders Turkey via the Nakhchivan exclave.
 
@@ -22,7 +21,6 @@ export const borders = {
   Botswana: ['Zambia', 'Zimbabwe', 'Namibia', 'South Africa'],
   'Burkina Faso': ['Mali', 'Niger', 'Benin', 'Togo', 'Ghana', "Côte d'Ivoire"],
   Burundi: ['Rwanda', 'Tanzania', 'Democratic Republic of the Congo'],
-  'Cabo Verde': [],
   Cameroon: [
     'Nigeria',
     'Chad',
@@ -47,7 +45,6 @@ export const borders = {
     'Central African Republic',
     'Sudan',
   ],
-  Comoros: [],
   Congo: [
     'Gabon',
     'Cameroon',
@@ -67,10 +64,10 @@ export const borders = {
     'Angola',
     'Congo',
   ],
-  Djibouti: ['Eritrea', 'Ethiopia', 'Somaliland', 'Yemen'],
+  Djibouti: ['Eritrea', 'Ethiopia', 'Somaliland'],
   Egypt: ['Libya', 'Sudan', 'Israel', 'Palestine'],
   'Equatorial Guinea': ['Cameroon', 'Gabon'],
-  Eritrea: ['Sudan', 'Ethiopia', 'Djibouti', 'Yemen'],
+  Eritrea: ['Sudan', 'Ethiopia', 'Djibouti'],
   Ethiopia: [
     'Eritrea',
     'Djibouti',
@@ -97,7 +94,7 @@ export const borders = {
   Lesotho: ['South Africa'],
   Liberia: ['Guinea', 'Sierra Leone', "Côte d'Ivoire"],
   Libya: ['Tunisia', 'Algeria', 'Niger', 'Chad', 'Sudan', 'Egypt'],
-  Madagascar: ['Mozambique'], // exception: ~400 km across the Mozambique Channel
+  Madagascar: ['Mozambique', 'Mayotte', 'Réunion'], // exception: ~400 km to Mozambique, ~300 km to Mayotte, ~700 km to Réunion
   Malawi: ['Tanzania', 'Zambia', 'Mozambique'],
   Mali: [
     'Mauritania',
@@ -109,8 +106,7 @@ export const borders = {
     'Algeria',
   ],
   Mauritania: ['Morocco', 'Western Sahara', 'Algeria', 'Mali', 'Senegal'],
-  Mauritius: [],
-  Morocco: ['Algeria', 'Western Sahara', 'Mauritania', 'Spain'],
+  Morocco: ['Algeria', 'Western Sahara', 'Mauritania'],
   Mozambique: [
     'Tanzania',
     'Malawi',
@@ -119,6 +115,7 @@ export const borders = {
     'South Africa',
     'eSwatini',
     'Madagascar',
+    'Comoros',
   ],
   Namibia: ['Angola', 'Zambia', 'Botswana', 'South Africa'],
   Niger: [
@@ -131,10 +128,12 @@ export const borders = {
     'Libya',
   ],
   Nigeria: ['Niger', 'Chad', 'Cameroon', 'Benin'],
+  Mauritius: ['Réunion'], // ~170 km
+  Comoros: ['Mayotte', 'Mozambique'], // ~70 km to Mayotte; exception: ~290 km to Mozambique
+  Mayotte: ['Madagascar', 'Comoros'], // exception: ~300 km to Madagascar; ~70 km to Comoros
+  Réunion: ['Madagascar', 'Mauritius'], // exception: ~700 km to Madagascar; ~170 km to Mauritius
   Rwanda: ['Uganda', 'Tanzania', 'Burundi', 'Democratic Republic of the Congo'],
-  'São Tomé and Principe': [],
   Senegal: ['Mauritania', 'Gambia', 'Guinea-Bissau', 'Guinea', 'Mali'],
-  Seychelles: [],
   'Sierra Leone': ['Guinea', 'Liberia'],
   Somalia: ['Ethiopia', 'Kenya', 'Somaliland'],
   Somaliland: ['Ethiopia', 'Djibouti', 'Somalia'],
@@ -219,10 +218,11 @@ export const borders = {
     'Bosnia and Herzegovina',
     'Montenegro',
   ],
-  Cyprus: ['Northern Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
+  Cyprus: ['Northern Cyprus'],
   Czechia: ['Germany', 'Austria', 'Slovakia', 'Poland'],
   Denmark: ['Germany', 'Sweden'],
   Estonia: ['Latvia', 'Russia'],
+  'Faroe Islands': ['United Kingdom', 'Iceland', 'Norway'], // ~280 km to UK (Shetland), ~420 km to Iceland, ~680 km to Norway
   Finland: ['Sweden', 'Norway', 'Russia'],
   France: [
     'Spain',
@@ -257,7 +257,7 @@ export const borders = {
     'Croatia',
     'Slovenia',
   ],
-  Iceland: ['Greenland'], // exception: ~290 km to Greenland
+  Iceland: ['Greenland', 'Faroe Islands'], // exception: ~290 km to Greenland; ~420 km to Faroe Islands
   Ireland: ['United Kingdom'],
   Italy: [
     'France',
@@ -285,8 +285,8 @@ export const borders = {
     'Albania',
   ],
   Netherlands: ['Belgium', 'Germany'],
-  'Northern Cyprus': ['Cyprus', 'Turkey', 'Lebanon', 'Syria'], // ~75 km from Turkey, ~100 km from Syria, ~175 km from Lebanon
-  Norway: ['Sweden', 'Finland', 'Russia', 'Greenland'],
+  'Northern Cyprus': ['Cyprus', 'Turkey'],
+  Norway: ['Sweden', 'Finland', 'Russia', 'Greenland', 'Faroe Islands'],
   Poland: [
     'Germany',
     'Czechia',
@@ -329,7 +329,7 @@ export const borders = {
   ],
   Slovakia: ['Czechia', 'Austria', 'Hungary', 'Ukraine', 'Poland'],
   Slovenia: ['Austria', 'Italy', 'Hungary', 'Croatia'],
-  Spain: ['Portugal', 'France', 'Andorra', 'Morocco'],
+  Spain: ['Portugal', 'France', 'Andorra'],
   Sweden: ['Norway', 'Finland', 'Denmark'],
   Switzerland: ['France', 'Germany', 'Austria', 'Liechtenstein', 'Italy'],
   Ukraine: [
@@ -341,7 +341,7 @@ export const borders = {
     'Russia',
     'Belarus',
   ],
-  'United Kingdom': ['Ireland', 'France'],
+  'United Kingdom': ['Ireland', 'France', 'Faroe Islands'],
   Vatican: ['Italy'],
 
   // ── Middle East ─────────────────────────────────────────────────────────
@@ -350,7 +350,7 @@ export const borders = {
   Israel: ['Egypt', 'Palestine', 'Jordan', 'Lebanon', 'Syria'],
   Jordan: ['Saudi Arabia', 'Iraq', 'Syria', 'Israel', 'Palestine'],
   Kuwait: ['Saudi Arabia', 'Iraq'],
-  Lebanon: ['Syria', 'Israel', 'Cyprus', 'Northern Cyprus'],
+  Lebanon: ['Syria', 'Israel'],
   Oman: ['United Arab Emirates', 'Saudi Arabia', 'Yemen'],
   Palestine: ['Egypt', 'Israel', 'Jordan'],
   Qatar: ['Saudi Arabia'],
@@ -364,17 +364,9 @@ export const borders = {
     'Yemen',
     'Bahrain',
   ],
-  Syria: [
-    'Turkey',
-    'Iraq',
-    'Jordan',
-    'Lebanon',
-    'Israel',
-    'Cyprus',
-    'Northern Cyprus',
-  ],
+  Syria: ['Turkey', 'Iraq', 'Jordan', 'Lebanon', 'Israel'],
   'United Arab Emirates': ['Saudi Arabia', 'Oman'],
-  Yemen: ['Saudi Arabia', 'Oman', 'Djibouti', 'Eritrea'],
+  Yemen: ['Saudi Arabia', 'Oman'],
 
   // ── Central & South Asia ────────────────────────────────────────────────
   Afghanistan: [
@@ -425,7 +417,6 @@ export const borders = {
     'Iran',
     'Iraq',
     'Syria',
-    'Cyprus',
     'Northern Cyprus',
   ],
   Turkmenistan: ['Kazakhstan', 'Uzbekistan', 'Afghanistan', 'Iran'],
@@ -468,7 +459,13 @@ export const borders = {
   // ── Southeast Asia ──────────────────────────────────────────────────────
   Brunei: ['Malaysia'],
   Cambodia: ['Vietnam', 'Laos', 'Thailand'],
-  Indonesia: ['Malaysia', 'Papua New Guinea', 'Timor-Leste', 'Philippines', 'Australia'], // exception: ~350 km from Rote Island to Australia's northwest coast
+  Indonesia: [
+    'Malaysia',
+    'Papua New Guinea',
+    'Timor-Leste',
+    'Philippines',
+    'Australia',
+  ], // exception: ~350 km from Rote Island to Australia's northwest coast
   Laos: ['China', 'Vietnam', 'Cambodia', 'Thailand', 'Myanmar'],
   Malaysia: ['Thailand', 'Brunei', 'Indonesia', 'Philippines', 'Singapore'],
   Myanmar: ['China', 'Laos', 'Thailand', 'Bangladesh', 'India'],
@@ -479,19 +476,11 @@ export const borders = {
   Vietnam: ['China', 'Laos', 'Cambodia'],
 
   // ── Oceania ─────────────────────────────────────────────────────────────
-  Australia: ['Papua New Guinea', 'Indonesia', 'New Zealand'], // exception: ~350 km to Indonesia (Rote Island), ~2200 km to New Zealand
-  Fiji: [],
-  Kiribati: [],
-  'Marshall Islands': [],
-  Micronesia: [],
-  Nauru: [],
-  'New Zealand': ['Australia'], // exception: ~2200 km to Australia
-  Palau: [],
+  Australia: ['Papua New Guinea', 'Indonesia', 'New Zealand', 'New Caledonia'], // exception: ~350 km to Indonesia (Rote Island), ~1200 km to New Caledonia, ~2200 km to New Zealand
+  'New Caledonia': ['Australia', 'New Zealand'], // exception: ~1200 km to Australia, ~1500 km to New Zealand
+  'New Zealand': ['Australia', 'New Caledonia'], // exception: ~2200 km to Australia, ~1500 km to New Caledonia
   'Papua New Guinea': ['Indonesia', 'Australia', 'Solomon Islands'],
-  Samoa: [],
   'Solomon Islands': ['Papua New Guinea'],
-  Tonga: [],
-  Vanuatu: [],
 
   // ── Americas ────────────────────────────────────────────────────────────
   // North America
@@ -545,7 +534,8 @@ export const borders = {
   ],
   Chile: ['Peru', 'Bolivia', 'Argentina'],
   Colombia: ['Panama', 'Venezuela', 'Ecuador', 'Peru', 'Brazil'],
-  Ecuador: ['Colombia', 'Peru'],
+  Ecuador: ['Colombia', 'Peru', 'Galápagos Islands'],
+  'Galápagos Islands': ['Ecuador'], // exception: ~1000 km offshore
   'French Guiana': ['Suriname', 'Brazil'],
   Guyana: ['Venezuela', 'Suriname', 'Brazil'],
   Paraguay: ['Brazil', 'Bolivia', 'Argentina'],

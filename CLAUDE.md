@@ -32,18 +32,25 @@ State is split across two files:
 
 ### Globe rendering — `src/map/useDrawMap.ts`
 
-Canvas-based rendering using a **d3-geo orthographic projection**. Runs a continuous `requestAnimationFrame` loop. Globe rotation and zoom are animated with `@react-spring/web` spring values (`rotX/Y/Z`, `scale`) passed into the hook. Country fill colors are determined by game state (terminal, connected, revealed, optimal, unrevealed) and read from CSS custom properties via `getColors()` (cached after first call). Countries too small to render as polygons get a dot + circle outline instead.
+Canvas-based rendering using a **d3-geo orthographic projection**. Runs a continuous `requestAnimationFrame` loop. Globe rotation and zoom are animated with `@react-spring/web` spring values (`rotX/Y/Z`, `scale`) passed into the hook. Country fill colors are determined by game state (terminal, connected, revealed, optimal, unrevealed) and read from CSS custom properties via `getColors()` (cached after first call). Countries too small to render as polygons get a dot + circle outline instead (area threshold < 2 in projection units).
 
-### Country data — `src/map/countries.ts`
+Hover detection (`src/map/useMapGestures.ts`) uses `geoContains` for normal countries. For small countries, a fallback circle hit-test runs if nothing was found: `smallCountryIds` is precomputed once at module load (same area threshold), and the fallback checks if the mouse is within 6px of the projected centroid — matching the drawn circle radius.
 
-TopoJSON (`src/map/data/countries-simplified.json`) is processed once at module load via `topojson-client`. Contains name normalization overrides and a special-case split of France's `MultiPolygon` into mainland France + French Guiana (to prevent France from visually spanning the Atlantic).
+### Country data — `src/map/countries.ts` + `src/map/processGeoData.ts`
+
+TopoJSON (`src/map/data/countries-simplified.json`) is loaded in `countries.ts`, passed through `processGeoData()`, and mapped to the exported `countries` array — the sole source of truth for all country data. `countryGeoData` is internal and not exported. All geo processing lives in `src/map/processGeoData.ts`:
+
+- **`NAME_OVERRIDES`** — normalizes abbreviated TopoJSON names to full names.
+- **`OMITTED_COUNTRIES`** — set of country names filtered out before processing (small/remote islands, isolated dead ends). Organized by region: Caribbean, Atlantic, Indian Ocean, Pacific, Antarctic, European microstates.
+- **Polygon stripping** — removes offshore territories baked into parent country `MultiPolygon`s: Spain (Canary Islands), Portugal (Madeira, Azores), Netherlands (Bonaire etc.), South Africa (Prince Edward Islands).
+- **Territory extraction** — splits France's `MultiPolygon` into separate named features: mainland France, French Guiana, Mayotte, Réunion, New Caledonia. Caribbean polygons (~-61°W) and other strays are dropped. Similarly extracts Galápagos Islands from Ecuador.
 
 `Country` type: `{ id: string, name: string, feature: GeoJSON Feature, centroid: [lonRad, latRad] }`.
 
 ### Border graph — `src/game/`
 
-- `borders.ts` — static adjacency map `Record<string, string[]>` listing neighboring country names.
-- `getNeighbors.ts` — looks up neighbors for a `Country` from the borders map.
+- `borders.ts` — static adjacency map `Record<string, string[]>` listing neighboring country names. Includes land borders and water crossings up to ~200 km, plus explicit exceptions for gameplay (e.g. Bering Strait, Greenland/Iceland, Australia/NZ). Countries absent from the map (omitted or not yet added) are silently ignored by `getNeighbors`.
+- `getNeighbors.ts` — looks up neighbors for a `Country` from the borders map, filtering out any names not present in `countryByName`.
 - `getConnectedGroup.ts` — BFS to find all countries reachable from a seed within a given set. Also exports `areCountriesConnected` helper.
 - `getRandomPath.ts` — BFS from a random start, picks an end exactly `length` hops away, returns the connecting path.
 - `countryByName.ts` — `Map<string, Country>` for O(1) name lookups.

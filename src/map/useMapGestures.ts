@@ -3,8 +3,19 @@ import { useStore } from 'jotai';
 import * as mapState from './state';
 import type { SpringValue } from '@react-spring/web';
 import type { RefObject } from 'react';
-import { geoContains, geoOrthographic } from 'd3-geo';
-import { countryGeoData, type Country } from './countries';
+import { geoContains, geoOrthographic, geoPath, geoCentroid } from 'd3-geo';
+import { countries, type Country } from './countries';
+
+const smallCountryIds = new Set<string>(
+  (() => {
+    const pathGen = geoPath(
+      geoOrthographic()
+        .scale(mapState.DEFAULT_SCALE)
+        .translate([mapState.GLOBE_SIZE / 2, mapState.GLOBE_SIZE / 2]),
+    );
+    return countries.filter(c => pathGen.area(c.feature) < 2).map(c => c.id);
+  })(),
+);
 import * as gameState from '../game/state';
 import { countryByName } from '../game/countryByName';
 
@@ -102,8 +113,8 @@ export const useMapGestures = ({
 
         let found: Country | undefined;
         if (lonLat) {
-          for (let i = countryGeoData.features.length - 1; i >= 0; i--) {
-            const feature = countryGeoData.features[i];
+          for (let i = countries.length - 1; i >= 0; i--) {
+            const feature = countries[i].feature;
             const isRevealed = revealed.some(c => c.id === feature.id);
             const isTerminal =
               feature.id === startCountry?.id || feature.id === endCountry?.id;
@@ -111,6 +122,27 @@ export const useMapGestures = ({
             if (geoContains(feature, lonLat)) {
               found = countryByName.get(feature.properties.name);
               break;
+            }
+          }
+        }
+
+        // Fallback: hit-test small countries using the circle drawn around them
+        if (!found) {
+          for (let i = countries.length - 1; i >= 0; i--) {
+            const feature = countries[i].feature;
+            if (!smallCountryIds.has(feature.id as string)) continue;
+            const isRevealed = revealed.some(c => c.id === feature.id);
+            const isTerminal =
+              feature.id === startCountry?.id || feature.id === endCountry?.id;
+            if (!showAll && !isRevealed && !isTerminal) continue;
+            const center = projection(geoCentroid(feature));
+            if (center) {
+              const dx = mx - center[0];
+              const dy = my - center[1];
+              if (dx * dx + dy * dy <= 36) {
+                found = countryByName.get(feature.properties.name);
+                break;
+              }
             }
           }
         }

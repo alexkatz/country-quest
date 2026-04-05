@@ -33,17 +33,17 @@ export const getColors = (): Colors => {
     surface,
     text,
 
-    connected: `color-mix(in oklch, ${connected} 80%, ${surface})`,
-    connectedHover: `color-mix(in oklch, ${connected} 60%, ${surface})`,
+    connected,
+    connectedHover: `color-mix(in oklch, ${connected} 75%, transparent)`,
 
     terminal,
-    terminalHover: `color-mix(in oklch, ${terminal} 50%, ${surface})`,
+    terminalHover: `color-mix(in oklch, ${terminal} 75%, transparent)`,
 
     optimal: `color-mix(in oklch, ${optimal} 80%, ${surface})`,
     optimalHover: `color-mix(in oklch, ${optimal} 60%, ${surface})`,
 
     globeBorder: `color-mix(in oklch, ${text} 30%, ${surface})`,
-    countryBorder: `color-mix(in oklch, ${text} 50%, ${surface})`,
+    countryBorder: `color-mix(in oklch, ${text} 80%, ${surface})`,
     graticuleLine: `color-mix(in oklch, ${text} 15%, ${surface})`,
 
     revealed: `color-mix(in oklch, ${text} 60%, ${surface})`,

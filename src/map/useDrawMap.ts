@@ -2,11 +2,10 @@ import { geoOrthographic, geoPath, geoCentroid, geoGraticule } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
 import * as mapState from './state';
 import * as gameState from '../game/state';
-import { countryGeoData, type Country } from './countries';
+import { countries, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import { getColors } from './getColors';
-import { countryByName } from '../game/countryByName';
 
 type Props = {
   scale: SpringValue<number>;
@@ -125,10 +124,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     ctx.strokeStyle = colors.countryBorder;
     ctx.lineWidth = 0.4;
 
-    for (let i = 0; i < countryGeoData.features.length; i++) {
-      const feature = countryGeoData.features[i];
-      const country = countryByName.get(feature.properties.name)!;
-
+    for (const country of countries) {
       const isRevealed =
         revealed.includes(country) ||
         (isRoundComplete && winningPath.includes(country));
@@ -151,7 +147,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       const isRevealedNonOptimal = revealedNonOptimal.includes(country);
 
       ctx.beginPath();
-      pathGen(feature);
+      pathGen(country.feature);
 
       if (isStart || isEnd) {
         ctx.fillStyle =
@@ -177,8 +173,8 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       ctx.stroke();
 
       // Countries too small to form a visible polygon — draw a dot with enclosing circle
-      if (pathGen.area(feature) < 2) {
-        const center = projection(geoCentroid(feature));
+      if (pathGen.area(country.feature) < 2) {
+        const center = projection(geoCentroid(country.feature));
         if (center) {
           ctx.beginPath();
           ctx.arc(center[0], center[1], 1, 0, Math.PI * 2);
@@ -187,11 +183,11 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
           ctx.beginPath();
           ctx.arc(center[0], center[1], 6, 0, Math.PI * 2);
           ctx.strokeStyle = ctx.fillStyle;
-          ctx.lineWidth = 0.75;
+          // ctx.lineWidth = 0.75;
           ctx.stroke();
 
           ctx.strokeStyle = colors.countryBorder;
-          ctx.lineWidth = 0.4;
+          // ctx.lineWidth = 0.4;
         }
       }
     }

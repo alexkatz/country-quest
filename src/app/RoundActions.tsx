@@ -5,10 +5,10 @@ import { countries, type Country } from '../map/countries';
 import * as gameState from '../game/state';
 import { useGesture } from '@use-gesture/react';
 import { tw } from '../layout/tw';
-import { Info, Map, Square, SquareCheck, Type } from 'lucide-react';
-import { Button } from '../layout/common/Button';
+import { Info, Map, Type } from 'lucide-react';
 import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
+import { Button } from '../layout/common/Button';
 
 export const RoundActions = (props: {
   ref: RefObject<HTMLInputElement | null>;
@@ -128,7 +128,11 @@ export const RoundActions = (props: {
           />
 
           <Button
-            className='self-stretch items-center gap-2 flex border-none shadow-none'
+            className={tw(
+              'border-transparent',
+              showAllCountries && 'bg-text/30 border-text/30',
+              !showAllCountries && 'shadow-transparent',
+            )}
             onClick={() => {
               if (showAllCountries) {
                 setShowAllNames(false);
@@ -137,29 +141,31 @@ export const RoundActions = (props: {
               setShowAllCountries(prev => !prev);
             }}
           >
-            {showAllCountries ? <SquareCheck /> : <Square />}{' '}
-            <Map className='opacity-50' />
+            <Map />
           </Button>
 
           <Button
             disabled={!showAllCountries}
-            className='self-stretch items-center gap-2 flex border-none shadow-none'
+            className={tw(
+              'border-transparent',
+              showAllNames && 'bg-text/30 border-text/30',
+              !showAllNames && 'shadow-transparent',
+            )}
             onClick={() => setShowAllNames(prev => !prev)}
           >
-            {showAllNames ? <SquareCheck /> : <Square />}{' '}
-            <Type className='opacity-50' />
+            <Type />
           </Button>
 
-          <button
+          <Button
             className={tw(
-              'cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
+              'border-transparent',
               isHelpOpen && 'bg-text/30 border-text/30',
               !isHelpOpen && 'shadow-transparent',
             )}
             onClick={() => setHelpOpen(prev => !prev)}
           >
             <Info />
-          </button>
+          </Button>
         </div>
 
         <div className='flex gap-1 flex-wrap'>
