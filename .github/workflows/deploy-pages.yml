@@ -26,6 +26,7 @@ jobs:
           cache: pnpm
 
       - run: corepack enable
+      - run: corepack install
       - run: pnpm --version
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
