@@ -200,7 +200,6 @@ export const borders = {
   Austria: [
     'Germany',
     'Switzerland',
-    'Liechtenstein',
     'Italy',
     'Slovenia',
     'Hungary',
@@ -259,18 +258,9 @@ export const borders = {
   ],
   Iceland: ['Greenland', 'Faroe Islands'], // exception: ~290 km to Greenland; ~420 km to Faroe Islands
   Ireland: ['United Kingdom'],
-  Italy: [
-    'France',
-    'Switzerland',
-    'Austria',
-    'Slovenia',
-    'San Marino',
-    'Vatican',
-    'Malta',
-  ],
+  Italy: ['France', 'Switzerland', 'Austria', 'Slovenia', 'Vatican', 'Malta'],
   Kosovo: ['Serbia', 'Macedonia', 'Albania', 'Montenegro'],
   Latvia: ['Estonia', 'Lithuania', 'Belarus', 'Russia'],
-  Liechtenstein: ['Switzerland', 'Austria'],
   Lithuania: ['Latvia', 'Belarus', 'Poland', 'Russia'],
   Luxembourg: ['France', 'Belgium', 'Germany'],
   Macedonia: ['Bulgaria', 'Serbia', 'Kosovo', 'Albania', 'Greece'],
@@ -316,7 +306,6 @@ export const borders = {
     'Poland',
     'United States of America',
   ],
-  'San Marino': ['Italy'],
   Serbia: [
     'Hungary',
     'Romania',
@@ -331,7 +320,7 @@ export const borders = {
   Slovenia: ['Austria', 'Italy', 'Hungary', 'Croatia'],
   Spain: ['Portugal', 'France', 'Andorra'],
   Sweden: ['Norway', 'Finland', 'Denmark'],
-  Switzerland: ['France', 'Germany', 'Austria', 'Liechtenstein', 'Italy'],
+  Switzerland: ['France', 'Germany', 'Austria', 'Italy'],
   Ukraine: [
     'Poland',
     'Slovakia',
@@ -390,7 +379,6 @@ export const borders = {
     'Bangladesh',
     'Myanmar',
     'Sri Lanka',
-    'Maldives',
   ],
   Iran: [
     'Turkey',
@@ -403,10 +391,9 @@ export const borders = {
   ],
   Kazakhstan: ['Russia', 'China', 'Kyrgyzstan', 'Uzbekistan', 'Turkmenistan'],
   Kyrgyzstan: ['Kazakhstan', 'China', 'Tajikistan', 'Uzbekistan'],
-  Maldives: ['India', 'Sri Lanka'],
   Nepal: ['India', 'China'],
   Pakistan: ['Iran', 'Afghanistan', 'China', 'India'],
-  'Sri Lanka': ['India', 'Maldives'],
+  'Sri Lanka': ['India'],
   Tajikistan: ['Kyrgyzstan', 'Uzbekistan', 'Afghanistan', 'China'],
   Turkey: [
     'Greece',
@@ -489,24 +476,10 @@ export const borders = {
   'United States of America': ['Canada', 'Mexico', 'Bahamas', 'Russia'],
 
   // Caribbean
-  'Antigua and Barbuda': ['Dominica', 'Saint Kitts and Nevis'],
   Bahamas: ['Cuba', 'United States of America'],
-  Barbados: ['Grenada', 'Saint Vincent and the Grenadines', 'Saint Lucia'],
-  Cuba: ['Haiti', 'Jamaica', 'Bahamas'],
-  Dominica: ['Saint Lucia', 'Antigua and Barbuda'],
-  'Dominican Republic': ['Haiti', 'Puerto Rico'],
-  Grenada: [
-    'Trinidad and Tobago',
-    'Saint Vincent and the Grenadines',
-    'Barbados',
-  ],
-  Haiti: ['Dominican Republic', 'Cuba', 'Jamaica'],
-  Jamaica: ['Cuba', 'Haiti'],
-  'Puerto Rico': ['Dominican Republic'],
-  'Saint Kitts and Nevis': ['Antigua and Barbuda'],
-  'Saint Lucia': ['Saint Vincent and the Grenadines', 'Barbados', 'Dominica'],
-  'Saint Vincent and the Grenadines': ['Grenada', 'Barbados', 'Saint Lucia'],
-  'Trinidad and Tobago': ['Venezuela', 'Grenada'],
+  Cuba: ['Haiti', 'Bahamas'],
+  'Dominican Republic': ['Haiti'],
+  Haiti: ['Dominican Republic', 'Cuba'],
 
   // Central America
   Belize: ['Mexico', 'Guatemala'],
@@ -542,5 +515,5 @@ export const borders = {
   Peru: ['Ecuador', 'Colombia', 'Brazil', 'Bolivia', 'Chile'],
   Suriname: ['Guyana', 'Brazil', 'French Guiana'],
   Uruguay: ['Argentina', 'Brazil'],
-  Venezuela: ['Colombia', 'Guyana', 'Brazil', 'Trinidad and Tobago'],
+  Venezuela: ['Colombia', 'Guyana', 'Brazil'],
 } as Record<string, string[]>;

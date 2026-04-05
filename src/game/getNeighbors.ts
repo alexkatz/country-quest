@@ -4,8 +4,8 @@ import { countryByName } from './countryByName';
 
 export const getNeighbors = (country: Country | string): Country[] => {
   return (
-    borders[typeof country === 'string' ? country : country.name]
-      ?.map(name => countryByName.get(name))
-      .filter(c => c !== undefined) ?? []
+    borders[typeof country === 'string' ? country : country.name]?.map(
+      name => countryByName.get(name)!,
+    ) ?? []
   );
 };
