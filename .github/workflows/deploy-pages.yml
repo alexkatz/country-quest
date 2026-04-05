@@ -23,20 +23,24 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
+
+      # Ensures pnpm exists early (so caching/install won’t error)
+      # and respects package.json "packageManager" automatically.
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
 
       - name: Enable Corepack + verify pnpm (from packageManager)
         run: |
           corepack enable
-          corepack pnpm --version
+          pnpm --version
 
       - name: Install dependencies
-        run: corepack pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: corepack pnpm build
+        run: pnpm build
 
-      # Upload Vite output for Pages
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
