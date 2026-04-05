@@ -25,11 +25,16 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: corepack enable
-      - run: corepack install
-      - run: pnpm --version
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
+      - name: Enable Corepack + verify pnpm (from packageManager)
+        run: |
+          corepack enable
+          corepack pnpm --version
+
+      - name: Install dependencies
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Build
+        run: corepack pnpm build
 
       # Upload Vite output for Pages
       - uses: actions/upload-pages-artifact@v3
