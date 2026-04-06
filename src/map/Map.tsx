@@ -7,7 +7,7 @@ import {
 } from './state';
 import { useMapGestures } from './useMapGestures';
 import { useDrawMap } from './useDrawMap';
-import { useOnCenterCountries } from './useOnCenterCountries';
+import { useOnGlobeEvents } from './useOnGlobeEvents';
 import { useOnRevealCountry } from './useOnRevealCountry';
 import { useAtomValue } from 'jotai';
 import { connectedRevealedCountriesAtom } from '../game/state';
@@ -23,7 +23,7 @@ export const Map = () => {
   };
 
   useDrawMap(mapInfo);
-  useOnCenterCountries(mapInfo);
+  useOnGlobeEvents(mapInfo);
   useOnRevealCountry();
 
   useAtomValue(connectedRevealedCountriesAtom);

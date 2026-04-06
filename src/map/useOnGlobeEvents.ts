@@ -1,7 +1,7 @@
 import { geoBounds } from 'd3-geo';
 import { useEffectEvent, useEffect } from 'react';
 import * as mapState from './state';
-import { type CenterCountriesHandler, onCenterCountries } from './globeEvents';
+import { type CenterCountriesHandler, globeEvents } from './globeEvents';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 
@@ -11,7 +11,7 @@ type Props = {
   scale: SpringValue<number>;
 };
 
-export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
+export const useOnGlobeEvents = ({ rotX, rotY, scale }: Props) => {
   const store = useStore();
 
   const centerCountries = useEffectEvent((countries => {
@@ -75,5 +75,15 @@ export const useOnCenterCountries = ({ rotX, rotY, scale }: Props) => {
     store.set(mapState.lastCenteredCountriesAtom, countries);
   }) satisfies CenterCountriesHandler);
 
-  useEffect(() => onCenterCountries(centerCountries), []);
+  const zoomStep = useEffectEvent((delta: number) => {
+    scale.start(
+      Math.max(
+        mapState.MIN_SCALE,
+        Math.min(mapState.MAX_SCALE, scale.get() + delta),
+      ),
+    );
+  });
+
+  useEffect(() => globeEvents.sub('center', centerCountries), []);
+  useEffect(() => globeEvents.sub('scale', zoomStep), []);
 };

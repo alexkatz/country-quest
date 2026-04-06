@@ -6,7 +6,7 @@ import type { Country } from '../map/countries';
 import { getNeighbors } from './getNeighbors';
 
 const INITIAL_MIN_PATH_SIZE = 5;
-const INITIAL_MAX_PATH_SIZE = 10;
+const INITIAL_MAX_PATH_SIZE = 23;
 
 const INITIAL_PATH = getRandomPath({
   length:

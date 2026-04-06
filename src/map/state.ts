@@ -14,6 +14,7 @@ export const DEFAULT_SCALE = 250;
 export const MAX_SCALE = 1700;
 export const ROTATION_SENSITIVITY = 0.15;
 export const ZOOM_SENSITIVITY = 100;
+export const KEYBOARD_ZOOM_STEP = 200;
 
 export const ROTATION_SPRING_CONFIG = {
   tension: 280,

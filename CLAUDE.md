@@ -26,9 +26,9 @@ State is split across two files:
 
 - **`src/game/state.ts`** — all game logic atoms:
   - Base atoms: `startCountryAtom`, `endCountryAtom`, `revealedCountriesAtom`, `optimalPathAtom`, `termAtom` (search input text), `roundAtom`, `maxPathSizeAtom`
-  - Display toggles (persisted via `atomWithStorage`): `showAllCountriesAtom`, `showAllNamesAtom`, `showColorKeyAtom`, `showDebugInfoAtom`
-  - Derived atoms: `connectedRevealedCountriesAtom`, `isRoundCompleteAtom`, `winningPathAtom`, `missedOptimalPathAtom`, `revealedNonOptimalAtom`
-- **`src/map/state.ts`** — visual/globe atoms: `hoveredCountryAtom`, `lastCenteredCountriesAtom`, `mouseGlobePosAtom`, plus constants for globe size, scale limits, sensitivity, and spring configs.
+  - Display toggles (persisted via `atomWithStorage`): `showAllCountriesAtom`, `showAllNamesAtom`, `showColorKeyAtom`, `showDebugInfoAtom`, `showHelpAtom`
+  - Derived atoms: `connectedRevealedCountriesAtom`, `isRoundCompleteAtom`, `winningPathAtom`, `missedOptimalPathAtom`, `revealedNonOptimalAtom`, `roundScoreSummary`
+- **`src/map/state.ts`** — visual/globe atoms: `hoveredCountryAtom`, `lastCenteredCountriesAtom`, `mouseGlobePosAtom`, plus constants for globe size, scale limits, sensitivity, `KEYBOARD_ZOOM_STEP`, and spring configs.
 
 ### Globe rendering — `src/map/useDrawMap.ts`
 
@@ -61,23 +61,38 @@ Lightweight custom fuzzy search used in `NavInput` to filter and rank country su
 
 ### Cross-component events — `src/map/globeEvents.ts`
 
-Lightweight pub/sub (`onCenterCountries` / `emitCenterCountries`) used to animate the globe to center on a country without prop drilling. `useOnCenterCountries` subscribes and springs the rotation. `useOnRevealCountry` watches `revealedCountriesAtom` and triggers centering when a new country is revealed.
+Typed multi-event pub/sub used to drive globe animation without prop drilling. `globeEvents.sub(event, handler)` registers a listener and returns an unsubscribe function; `globeEvents.emit(event, payload)` fires all listeners. Two event types:
+
+- `'center'` (`CenterCountriesHandler`) — rotates and auto-fits zoom to show a list of countries.
+- `'scale'` (`ScaleHandler`) — adjusts zoom by a delta value.
+
+`useOnGlobeEvents` (in `Map`) subscribes to both events and springs the rotation/scale. `useOnRevealCountry` watches `revealedCountriesAtom` and emits `'center'` when a new country is revealed.
 
 ### CountryPill events — `src/app/createCountryPillEvents.ts`
 
-Factory function that returns `{ onMouseEnter, onFocus, onClick }` — all call `emitCenterCountries([country])`. Spread directly onto `<CountryPill>` props to wire map centering from any pill in the UI.
+Factory function that returns `{ onMouseEnter, onFocus, onClick }` — all call `globeEvents.emit('center', [country])`. Spread directly onto `<CountryPill>` props to wire map centering from any pill in the UI.
 
 ### Keyboard handling — `src/app/useOnKeyDown.ts`
 
-Global `keydown` listener attached in `NavBar`. Arrow keys navigate between country pills (selected via `data-country-pill` attribute), Escape centers start + end countries and blurs any focused pill, and any typed character focuses the search input (if the round is still in progress). Uses React 19's `useEffectEvent` to avoid stale closures.
+Global `keydown` listener attached in `NavBar`. Behaviors:
+
+- **ArrowLeft/Right** — navigate between country pills in the same row (`data-country-pill` attribute).
+- **ArrowUp/Down** — navigate between pill rows (`data-pill-row` attribute), preserving column position.
+- **Shift+ArrowUp/Down** — zoom in/out via `globeEvents.emit('scale', ±KEYBOARD_ZOOM_STEP)`.
+- **Escape** — centers globe on start + end countries and blurs any focused pill.
+- **Any printable character** — focuses the search input (if the round is still in progress).
+
+Uses React 19's `useEffectEvent` to avoid stale closures.
 
 ### Component tree
 
 ```
 App (JotaiProvider + createStore)
 └── Landing
+    ├── ShortcutGuide (top-right overlay, keyboard shortcut reference)
+    ├── DebugInfo
     ├── Map (canvas globe)
-    │   useDrawMap, useMapGestures, useOnCenterCountries, useOnRevealCountry
+    │   useDrawMap, useMapGestures, useOnGlobeEvents, useOnRevealCountry
     └── NavBar (bottom bar)
         ├── NavInput (during round)
         │   Fuzzy search input → reveal country
@@ -93,6 +108,6 @@ App (JotaiProvider + createStore)
 
 ### Styling notes
 
-- Tailwind v4 — CSS custom properties (`--color-terminal`, `--color-connected`, `--color-optimal`, `--color-surface`, `--color-text`) are defined in CSS and consumed both by Tailwind classes and by `getColors()` for canvas rendering.
+- Tailwind v4 — CSS custom properties (`--color-background`, `--color-text`, `--color-surface`, `--color-terminal`, `--color-connected`, `--color-optimal`) are defined in CSS and consumed both by Tailwind classes and by `getColors()` for canvas rendering.
 - `getColors()` caches on first call. If colors change at runtime (theme switch etc.), the cache must be invalidated manually.
 - `CountryPill` uses a `data-country-pill` attribute for keyboard navigation DOM selection.

@@ -1,8 +1,8 @@
 import type { Country } from '../map/countries';
-import { emitCenterCountries } from '../map/globeEvents';
+import { globeEvents } from '../map/globeEvents';
 
 export const createCountryPillEvents = (country: Country) => ({
-  onMouseEnter: () => emitCenterCountries([country]),
-  onFocus: () => emitCenterCountries([country]),
-  onClick: () => emitCenterCountries([country]),
+  onMouseEnter: () => globeEvents.emit('center', [country]),
+  onFocus: () => globeEvents.emit('center', [country]),
+  onClick: () => globeEvents.emit('center', [country]),
 });

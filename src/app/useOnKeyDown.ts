@@ -1,5 +1,6 @@
 import { useEffect, useEffectEvent } from 'react';
-import { emitCenterCountries } from '../map/globeEvents';
+import { globeEvents } from '../map/globeEvents';
+import { KEYBOARD_ZOOM_STEP } from '../map/state';
 import { useStore } from 'jotai';
 import * as gameState from '../game/state';
 
@@ -48,16 +49,29 @@ export const useOnKeyDown = (props: {
       return;
     }
 
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && e.shiftKey) {
+      e.preventDefault();
+      globeEvents.emit(
+        'scale',
+        e.key === 'ArrowUp' ? KEYBOARD_ZOOM_STEP : -KEYBOARD_ZOOM_STEP,
+      );
+      return;
+    }
+
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       const rows = Array.from(
-        props.navRef.current?.querySelectorAll<HTMLElement>('[data-pill-row]') ?? [],
+        props.navRef.current?.querySelectorAll<HTMLElement>(
+          '[data-pill-row]',
+        ) ?? [],
       );
       if (rows.length === 0) return;
       e.preventDefault();
       const focused = document.activeElement as HTMLElement;
       if (!focused?.hasAttribute('data-country-pill')) {
         const edgeRow = rows[e.key === 'ArrowDown' ? 0 : rows.length - 1];
-        const edgePills = Array.from(edgeRow.querySelectorAll<HTMLElement>('[data-country-pill]'));
+        const edgePills = Array.from(
+          edgeRow.querySelectorAll<HTMLElement>('[data-country-pill]'),
+        );
         edgePills[e.key === 'ArrowDown' ? 0 : edgePills.length - 1]?.focus();
         return;
       }
@@ -76,7 +90,7 @@ export const useOnKeyDown = (props: {
     }
 
     if (e.key === 'Escape') {
-      emitCenterCountries([startCountry, endCountry]);
+      globeEvents.emit('center', [startCountry, endCountry]);
       if (document.activeElement?.hasAttribute('data-country-pill')) {
         (document.activeElement as HTMLElement).blur();
       }
