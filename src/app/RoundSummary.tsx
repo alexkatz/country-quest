@@ -13,9 +13,7 @@ export const RoundSummary = () => {
   const isWinningPathOptimal = winningPath.length === optimalPath.length;
   const startCountry = useAtomValue(gameState.startCountryAtom);
   const endCountry = useAtomValue(gameState.endCountryAtom);
-  const [isColorKeyOpen, setIsColorKeyOpen] = useAtom(
-    gameState.showColorKeyAtom,
-  );
+  const [isHelpOpen, setIsHelpOpen] = useAtom(gameState.showHelpAtom);
   const revealedCountries = useAtomValue(gameState.revealedCountriesAtom);
   const connectedRevealedCountries = useAtomValue(
     gameState.connectedRevealedCountriesAtom,
@@ -27,10 +25,10 @@ export const RoundSummary = () => {
       <button
         className={tw(
           'absolute top-2 right-2 cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
-          isColorKeyOpen && 'bg-text/30 border-text/30',
-          !isColorKeyOpen && 'shadow-transparent',
+          isHelpOpen && 'bg-text/30 border-text/30',
+          !isHelpOpen && 'shadow-transparent',
         )}
-        onClick={() => setIsColorKeyOpen(prev => !prev)}
+        onClick={() => setIsHelpOpen(prev => !prev)}
       >
         <Info />
       </button>

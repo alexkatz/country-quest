@@ -26,7 +26,7 @@ State is split across two files:
 
 - **`src/game/state.ts`** — all game logic atoms:
   - Base atoms: `startCountryAtom`, `endCountryAtom`, `revealedCountriesAtom`, `optimalPathAtom`, `termAtom` (search input text), `roundAtom`, `maxPathSizeAtom`
-  - Display toggles (persisted via `atomWithStorage`): `showAllCountriesAtom`, `showAllNamesAtom`, `showColorKeyAtom`, `showDebugInfoAtom`, `showHelpAtom`
+  - Display toggles (persisted via `atomWithStorage`): `showAllCountriesAtom`, `showAllNamesAtom`, `showDebugInfoAtom`, `showHelpAtom`
   - Derived atoms: `connectedRevealedCountriesAtom`, `isRoundCompleteAtom`, `winningPathAtom`, `missedOptimalPathAtom`, `revealedNonOptimalAtom`, `roundScoreSummary`
 - **`src/map/state.ts`** — visual/globe atoms: `hoveredCountryAtom`, `lastCenteredCountriesAtom`, `mouseGlobePosAtom`, plus constants for globe size, scale limits, sensitivity, `KEYBOARD_ZOOM_STEP`, and spring configs.
 
@@ -98,12 +98,10 @@ App (JotaiProvider + createStore)
         │   Fuzzy search input → reveal country
         │   CountryPills for start, revealed, and end countries
         │   Show All Countries / Show All Names toggles
-        ├── RoundSummary (post-round)
-        │   Winning path vs. optimal path comparison
-        │   CountryPills for each path segment
-        │   Info button toggles ColorKey
-        └── ColorKey (post-round, toggleable)
-            Legend for terminal, connected, revealed-off-path, optimal-not-revealed
+        └── RoundSummary (post-round)
+            Winning path vs. optimal path comparison
+            CountryPills for each path segment
+            Info button toggles Help
 ```
 
 ### Styling notes

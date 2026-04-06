@@ -17,13 +17,6 @@ const INITIAL_PATH = getRandomPath({
 });
 
 export const showDebugInfoAtom = atom(false);
-export const showColorKeyAtom = atomWithStorage(
-  'show-color-key',
-  true,
-  undefined,
-  { getOnInit: true },
-);
-
 export const showHelpAtom = atomWithStorage('show-help', true, undefined, {
   getOnInit: true,
 });

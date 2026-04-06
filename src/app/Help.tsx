@@ -56,11 +56,17 @@ export const Help = () => {
         <Step n={4}>
           After the round, your path is compared to the{' '}
           <CountryPill className='bg-optimal/80 inline text-xs px-1'>
-            shortest possible route
+            shortest possible path
           </CountryPill>
-          . Fewer reveals is better.
+          . Your score is based on how many countries are revealed.{' '}
+          <CountryPill className='bg-text/20 inline text-xs px-1'>
+            Revealed but off-path
+          </CountryPill>{' '}
+          countries still count as reveals and will raise your score. The lower
+          your score, the better.
         </Step>
-        <Step n={5}>
+        <Step n={5}>Keyboard shortcuts are shown in the top-right corner.</Step>
+        <Step n={6}>
           Inspired by{' '}
           <a
             href='https://travle.earth/'
