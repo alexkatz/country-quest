@@ -60,6 +60,18 @@ export const Help = () => {
           </CountryPill>
           . Fewer reveals is better.
         </Step>
+        <Step n={5}>
+          Inspired by{' '}
+          <a
+            href='https://travle.earth/'
+            target='_blank'
+            rel='noopener noreferrer'
+            className='underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity'
+          >
+            travle.earth
+          </a>
+          . Go play that first, honestly.
+        </Step>
       </div>
     </div>
   );
