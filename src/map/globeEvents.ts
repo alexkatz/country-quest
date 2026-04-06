@@ -1,6 +1,9 @@
 import type { Country } from './countries';
 
-export type CenterCountriesHandler = (countries: Country[]) => void;
+export type CenterCountriesHandler = (props: {
+  countries: Country[];
+  scaleToFit?: true;
+}) => void;
 export type ScaleHandler = (scale: number) => void;
 
 const scaleHandlers = new Set<ScaleHandler>();
@@ -32,14 +35,20 @@ export const globeEvents = {
 
   emit<TEvent extends 'center' | 'scale'>(
     event: TEvent,
-    payload: TEvent extends 'center' ? Country[] : number,
+    payload: TEvent extends 'center'
+      ? Parameters<CenterCountriesHandler>[0]
+      : Parameters<ScaleHandler>[0],
   ) {
     if (event === 'center') {
-      centerHandlers.forEach(handle => handle(payload as Country[]));
+      centerHandlers.forEach(handle =>
+        handle(payload as Parameters<CenterCountriesHandler>[0]),
+      );
     }
 
     if (event === 'scale') {
-      scaleHandlers.forEach(handle => handle(payload as number));
+      scaleHandlers.forEach(handle =>
+        handle(payload as Parameters<ScaleHandler>[0]),
+      );
     }
   },
 };

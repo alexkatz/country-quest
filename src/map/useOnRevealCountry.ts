@@ -11,7 +11,7 @@ export const useOnRevealCountry = () => {
       const revealedCountries = store.get(revealedCountriesAtom);
       const lastRevealedCountry =
         revealedCountries[revealedCountries.length - 1];
-      globeEvents.emit('center', [lastRevealedCountry]);
+      globeEvents.emit('center', { countries: [lastRevealedCountry] });
     });
   }, [store]);
 };

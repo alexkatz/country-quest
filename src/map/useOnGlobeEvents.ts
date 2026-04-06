@@ -14,7 +14,7 @@ type Props = {
 export const useOnGlobeEvents = ({ rotX, rotY, scale }: Props) => {
   const store = useStore();
 
-  const centerCountries = useEffectEvent((countries => {
+  const centerCountries = useEffectEvent((({ countries, scaleToFit }) => {
     let x = 0,
       y = 0,
       z = 0;
@@ -32,45 +32,43 @@ export const useOnGlobeEvents = ({ rotX, rotY, scale }: Props) => {
     rotX.start(-centerLon);
     rotY.start(-centerLat);
 
-    const centerLonRad = centerLon * mapState.DEG;
-    const centerLatRad = centerLat * mapState.DEG;
-    const boundaryPoints = countries.flatMap(country => {
-      const [[west, south], [east, north]] = geoBounds(country.feature);
-      return [
-        [west * mapState.DEG, south * mapState.DEG],
-        [east * mapState.DEG, north * mapState.DEG],
-        [west * mapState.DEG, north * mapState.DEG],
-        [east * mapState.DEG, south * mapState.DEG],
-      ] as [number, number][];
-    });
+    if (scaleToFit) {
+      const centerLonRad = centerLon * mapState.DEG;
+      const centerLatRad = centerLat * mapState.DEG;
+      const boundaryPoints = countries.flatMap(country => {
+        const [[west, south], [east, north]] = geoBounds(country.feature);
+        return [
+          [west * mapState.DEG, south * mapState.DEG],
+          [east * mapState.DEG, north * mapState.DEG],
+          [west * mapState.DEG, north * mapState.DEG],
+          [east * mapState.DEG, south * mapState.DEG],
+        ] as [number, number][];
+      });
 
-    let maxAngDist = 0;
-    for (const [lonRad, latRad] of boundaryPoints) {
-      const dot = Math.max(
-        -1,
-        Math.min(
-          1,
-          Math.sin(latRad) * Math.sin(centerLatRad) +
-            Math.cos(latRad) *
-              Math.cos(centerLatRad) *
-              Math.cos(lonRad - centerLonRad),
-        ),
+      let maxAngDist = 0;
+      for (const [lonRad, latRad] of boundaryPoints) {
+        const dot = Math.max(
+          -1,
+          Math.min(
+            1,
+            Math.sin(latRad) * Math.sin(centerLatRad) +
+              Math.cos(latRad) *
+                Math.cos(centerLatRad) *
+                Math.cos(lonRad - centerLonRad),
+          ),
+        );
+        maxAngDist = Math.max(maxAngDist, Math.acos(dot));
+      }
+
+      const fitScale =
+        maxAngDist > 0.01
+          ? ((mapState.GLOBE_SIZE / 2) * 0.6) / Math.sin(maxAngDist)
+          : mapState.MAX_SCALE;
+
+      scale.start(
+        Math.max(mapState.MIN_SCALE, Math.min(scale.get(), fitScale)),
       );
-      maxAngDist = Math.max(maxAngDist, Math.acos(dot));
     }
-
-    const MAX_CENTER_SCALE = 400;
-    const fitScale =
-      maxAngDist > 0.01
-        ? ((mapState.GLOBE_SIZE / 2) * 0.6) / Math.sin(maxAngDist)
-        : 500;
-    const currentScale = scale.get();
-    const newScale =
-      currentScale > MAX_CENTER_SCALE
-        ? Math.min(currentScale, fitScale)
-        : Math.min(MAX_CENTER_SCALE, fitScale);
-
-    scale.start(Math.max(mapState.MIN_SCALE, newScale));
 
     store.set(mapState.lastCenteredCountriesAtom, countries);
   }) satisfies CenterCountriesHandler);

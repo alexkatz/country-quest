@@ -63,7 +63,7 @@ Lightweight custom fuzzy search used in `NavInput` to filter and rank country su
 
 Typed multi-event pub/sub used to drive globe animation without prop drilling. `globeEvents.sub(event, handler)` registers a listener and returns an unsubscribe function; `globeEvents.emit(event, payload)` fires all listeners. Two event types:
 
-- `'center'` (`CenterCountriesHandler`) — rotates and auto-fits zoom to show a list of countries.
+- `'center'` (`CenterCountriesHandler`) — rotates the globe to center on a list of countries. Accepts `{ countries, scaleToFit? }`. When `scaleToFit` is `true`, zoom is adjusted if needed: scale is only reduced (zoomed out) to the minimum required to fit all countries in view; it is never increased.
 - `'scale'` (`ScaleHandler`) — adjusts zoom by a delta value.
 
 `useOnGlobeEvents` (in `Map`) subscribes to both events and springs the rotation/scale. `useOnRevealCountry` watches `revealedCountriesAtom` and emits `'center'` when a new country is revealed.

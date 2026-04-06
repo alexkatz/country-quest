@@ -90,7 +90,7 @@ export const useOnKeyDown = (props: {
     }
 
     if (e.key === 'Escape') {
-      globeEvents.emit('center', [startCountry, endCountry]);
+      globeEvents.emit('center', { countries: [startCountry, endCountry] });
       if (document.activeElement?.hasAttribute('data-country-pill')) {
         (document.activeElement as HTMLElement).blur();
       }

@@ -42,7 +42,7 @@ const Row = (props: { children: ReactNode; description: string }) => (
   </>
 );
 
-export const ShortcutGuide = (props: { className?: string }) => {
+export const KeyboardShortcutGuide = (props: { className?: string }) => {
   return (
     <div
       className={tw(
