@@ -22,7 +22,7 @@ export const CountryPill = (props: {
       onFocus={props.onFocus}
       onClick={props.onClick}
     >
-      {props.country?.name ?? props.children}
+      {props.children ?? props.country?.name}
     </button>
   );
 };
