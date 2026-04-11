@@ -37,8 +37,8 @@ export const useMapGestures = ({
   const store = useStore();
   return useGesture(
     {
-      onDrag({ movement: [mx, my], memo, tap, first }) {
-        if (tap) return;
+      onDrag({ movement: [mx, my], pinching, memo, tap, first }) {
+        if (tap || pinching) return;
 
         store.set(mapState.lastCenteredCountriesAtom, undefined);
         store.set(mapState.hoveredCountryAtom, undefined);
@@ -72,6 +72,18 @@ export const useMapGestures = ({
             Math.min(
               mapState.MAX_SCALE,
               scale.get() - dy * mapState.ZOOM_SENSITIVITY,
+            ),
+          ),
+        );
+      },
+
+      onPinch({ delta: [dx] }) {
+        scale.start(
+          Math.max(
+            mapState.MIN_SCALE,
+            Math.min(
+              mapState.MAX_SCALE,
+              scale.get() + dx * mapState.PINCH_ZOOM_SENSITIVITY,
             ),
           ),
         );

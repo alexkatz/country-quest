@@ -2,22 +2,29 @@ import { geoOrthographic, geoPath, geoCentroid, geoGraticule } from 'd3-geo';
 import { useEffectEvent, type RefObject, useEffect } from 'react';
 import * as mapState from './state';
 import * as gameState from '../game/state';
+import * as layoutState from '../layout/state';
 import { countries, type Country } from './countries';
 import type { SpringValue } from '@react-spring/web';
 import { useStore } from 'jotai';
 import { getColors } from './getColors';
-
 type Props = {
   scale: SpringValue<number>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   rotX: SpringValue<number>;
   rotY: SpringValue<number>;
   rotZ: SpringValue<number>;
+  viewportOffsetTop: SpringValue<number>;
 };
 
-export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
+export const useDrawMap = ({
+  rotX,
+  rotY,
+  rotZ,
+  scale,
+  canvasRef,
+  viewportOffsetTop,
+}: Props) => {
   const store = useStore();
-
   const draw = useEffectEvent(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -35,10 +42,21 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const rx = rotX.get();
+    const ry = rotY.get();
+    const rz = rotZ.get();
+    const s = scale.get();
+    const offsetTop = viewportOffsetTop.get();
+    const navBarHeight = store.get(layoutState.navBarHeightAtom);
+
     // Center the square globe in the (possibly non-square) container
     const displaySize = Math.min(cssWidth, cssHeight);
-    const offsetX = (cssWidth - displaySize) / 2;
-    const offsetY = (cssHeight - displaySize) / 2;
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+    const renderWidth = cssWidth;
+    const renderHeight = viewportHeight - navBarHeight;
+
+    const offsetX = (renderWidth - displaySize) / 2;
+    const offsetY = offsetTop + (renderHeight - displaySize) / 2;
 
     ctx.save();
     ctx.scale(dpr, dpr);
@@ -47,11 +65,6 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
       displaySize / mapState.GLOBE_SIZE,
       displaySize / mapState.GLOBE_SIZE,
     );
-
-    const rx = rotX.get();
-    const ry = rotY.get();
-    const rz = rotZ.get();
-    const s = scale.get();
 
     const projection = geoOrthographic()
       .scale(s)
@@ -85,7 +98,7 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     const isRoundComplete = store.get(gameState.isRoundCompleteAtom);
     const winningPath = store.get(gameState.winningPathAtom);
     const missedOptimalPath = store.get(gameState.missedOptimalPathAtom);
-    const revealedNonOptimal = store.get(gameState.revealedNonOptimalAtom);
+    const revealedNonOptimal = store.get(gameState.revealedOffPathAtom);
     const showNames = isRoundComplete
       ? true
       : store.get(gameState.showAllNamesAtom);
@@ -261,4 +274,16 @@ export const useDrawMap = ({ rotX, rotY, rotZ, scale, canvasRef }: Props) => {
     rafId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafId);
   }, []);
+
+  // Spring-animate toward visualViewport offsetTop so globe tracks
+  // keyboard appearance smoothly even when iOS pauses RAF during animation
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const controller = new AbortController();
+    const handler = () => viewportOffsetTop.start(vv.offsetTop);
+    vv.addEventListener('resize', handler, controller);
+    vv.addEventListener('scroll', handler, controller);
+    return () => controller.abort();
+  }, [viewportOffsetTop]);
 };

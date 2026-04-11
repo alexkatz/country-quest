@@ -9,16 +9,20 @@ import { Info, Map, Type } from 'lucide-react';
 import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
 import { Button } from '../layout/common/Button';
+import { getIsMobileSafari } from '../layout/common/getIsMobileSafari';
 
 export const RoundActions = (props: {
   ref: RefObject<HTMLInputElement | null>;
 }) => {
+  const isMobileSafari = getIsMobileSafari();
+
   const [revealedCountries, setRevealedCountries] = useAtom(
     gameState.revealedCountriesAtom,
   );
   const connectedRevealedCountries = useAtomValue(
     gameState.connectedRevealedCountriesAtom,
   );
+
   const [showAllNames, setShowAllNames] = useAtom(gameState.showAllNamesAtom);
   const startCountry = useAtomValue(gameState.startCountryAtom);
   const endCountry = useAtomValue(gameState.endCountryAtom);
@@ -26,13 +30,13 @@ export const RoundActions = (props: {
     gameState.showAllCountriesAtom,
   );
   const isRoundComplete = useAtomValue(gameState.isRoundCompleteAtom);
+  const [term, setTerm] = useAtom(gameState.termAtom);
+  const [isHelpOpen, setHelpOpen] = useAtom(gameState.showHelpAtom);
+
   const [selectedSuggestionIndexAtom] = useState(() => atom(0));
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useAtom(
     selectedSuggestionIndexAtom,
   );
-  const [term, setTerm] = useAtom(gameState.termAtom);
-
-  const [isHelpOpen, setHelpOpen] = useAtom(gameState.showHelpAtom);
 
   const suggestions =
     term.length === 0
@@ -79,13 +83,6 @@ export const RoundActions = (props: {
           event.stopPropagation();
           setSelectedSuggestionIndex(prev => Math.max(prev - 1, 0));
         }
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-        event.stopPropagation();
-        const country = suggestions[selectedSuggestionIndex];
-        if (country) {
-          onRevealCountry(country);
-        }
       }
     },
   });
@@ -113,23 +110,38 @@ export const RoundActions = (props: {
 
       <div className='flex flex-col gap-2 bg-background/30 backdrop-blur-2xl rounded-lg border border-text/30 shadow-sm p-2'>
         <div className='flex items-center gap-1'>
-          <input
-            {...props}
-            className={tw(
-              'flex-1 p-2 focus:outline-none bg-transparent cursor-default',
-              term.length === 0 && 'caret-transparent',
-            )}
-            placeholder='Type anywhere to reveal a country...'
-            tabIndex={-1}
-            disabled={isRoundComplete}
-            value={term}
-            onChange={e => {
-              setSelectedSuggestionIndex(0);
-              setTerm(e.target.value);
+          <form
+            className='contents'
+            onSubmit={e => {
+              e.preventDefault();
+              if (suggestions[selectedSuggestionIndex]) {
+                onRevealCountry(suggestions[selectedSuggestionIndex]);
+              }
             }}
-            autoFocus
-            {...bindInputGesture()}
-          />
+          >
+            <input
+              {...props}
+              className={tw(
+                'flex-1 p-2 text-[16px] border border-text/30 rounded-lg bg-text/10 lg:border-none lg:focus:outline-none lg:bg-transparent cursor-default',
+                term.length === 0 && 'lg:caret-transparent',
+              )}
+              placeholder={
+                isMobileSafari
+                  ? 'Search countries...'
+                  : 'Type anywhere to reveal a country...'
+              }
+              aria-autocomplete='none'
+              autoComplete='off'
+              disabled={isRoundComplete}
+              value={term}
+              onChange={e => {
+                setSelectedSuggestionIndex(0);
+                setTerm(e.target.value);
+              }}
+              autoFocus
+              {...bindInputGesture()}
+            />
+          </form>
 
           <Button
             className={tw(

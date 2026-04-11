@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
@@ -23,7 +24,8 @@
     "react-dom": "^19.2.4",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
-    "topojson-client": "^3.1.0"
+    "topojson-client": "^3.1.0",
+    "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

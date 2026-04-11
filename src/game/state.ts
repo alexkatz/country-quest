@@ -98,7 +98,7 @@ export const roundScoreSummary = atom(get => {
   return { guesses, optimal, score: guesses - optimal };
 });
 
-export const revealedNonOptimalAtom = atom(get => {
+export const revealedOffPathAtom = atom(get => {
   if (!get(isRoundCompleteAtom)) return [];
   const revealed = get(revealedCountriesAtom);
   const winningPath = get(winningPathAtom);

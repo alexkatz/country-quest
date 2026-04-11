@@ -46,7 +46,7 @@ export const KeyboardShortcutGuide = (props: { className?: string }) => {
   return (
     <div
       className={tw(
-        'grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 rounded-lg',
+        'hidden lg:grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 rounded-lg',
         props.className,
       )}
     >

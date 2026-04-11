@@ -20,11 +20,15 @@ export const Landing = () => {
   }, [endCountry, startCountry]);
 
   return (
-    <div className='bg-background h-screen w-screen relative'>
+    <div className='bg-background h-dvh w-screen relative'>
       <KeyboardShortcutGuide className='absolute top-2 right-2' />
       <DebugInfo />
-      <Map />
-      <NavBar className={tw('absolute bottom-0 left-0 right-0')} />
+      <Map className='absolute inset-0' />
+      <NavBar
+        className={tw(
+          'absolute bottom-[env(safe-area-inset-bottom)] left-0 right-0',
+        )}
+      />
     </div>
   );
 };

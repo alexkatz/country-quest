@@ -4,21 +4,24 @@ import {
   DEFAULT_SCALE,
   ROTATION_SPRING_CONFIG,
   SCALE_SPRING_CONFIG,
+  VIEWPORT_OFFSET_SPRING_CONFIG,
 } from './state';
 import { useMapGestures } from './useMapGestures';
 import { useDrawMap } from './useDrawMap';
 import { useOnGlobeEvents } from './useOnGlobeEvents';
 import { useOnRevealCountry } from './useOnRevealCountry';
-import { useAtomValue } from 'jotai';
-import { connectedRevealedCountriesAtom } from '../game/state';
+import { tw } from '../layout/tw';
 
-export const Map = () => {
+export const Map = (props: { className?: string }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mapInfo = {
     rotX: useSpringValue(0, { config: ROTATION_SPRING_CONFIG }),
     rotY: useSpringValue(-20, { config: ROTATION_SPRING_CONFIG }),
     rotZ: useSpringValue(0, { config: ROTATION_SPRING_CONFIG }),
     scale: useSpringValue(DEFAULT_SCALE, { config: SCALE_SPRING_CONFIG }),
+    viewportOffsetTop: useSpringValue(0, {
+      config: VIEWPORT_OFFSET_SPRING_CONFIG,
+    }),
     canvasRef,
   };
 
@@ -26,12 +29,15 @@ export const Map = () => {
   useOnGlobeEvents(mapInfo);
   useOnRevealCountry();
 
-  useAtomValue(connectedRevealedCountriesAtom);
-
   const bindGestures = useMapGestures(mapInfo);
 
   return (
-    <div className='relative flex h-full w-full items-center justify-center overflow-hidden touch-none'>
+    <div
+      className={tw(
+        'flex items-center justify-center overflow-hidden touch-none',
+        props.className,
+      )}
+    >
       <canvas
         ref={canvasRef}
         className='h-full w-full touch-none'

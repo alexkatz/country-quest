@@ -4,6 +4,7 @@ export type CenterCountriesHandler = (props: {
   countries: Country[];
   scaleToFit?: true;
 }) => void;
+
 export type ScaleHandler = (scale: number) => void;
 
 const scaleHandlers = new Set<ScaleHandler>();
