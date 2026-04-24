@@ -44,19 +44,38 @@ export const Help = () => {
         <Step n={2}>
           Type a country's name to reveal it on the globe. Revealed countries
           that share a border become{' '}
-          <CountryPill className='bg-connected/60 inline text-xs px-1'>
-            connected
-          </CountryPill>
+          <CountryPill
+            className='bg-connected/60 inline text-xs px-1'
+            children='connected'
+          />
           . Not all countries are in the game at this time.
         </Step>
         <Step n={3}>
-          The round ends when start and end are joined by an unbroken chain of
-          connected countries.
+          The round ends when your{' '}
+          <CountryPill
+            className='bg-terminal/60 inline text-xs px-1'
+            country={start}
+            children='start'
+            {...createCountryPillEvents(start)}
+          />{' '}
+          and{' '}
+          <CountryPill
+            className='bg-terminal/60 inline text-xs px-1'
+            country={end}
+            children='end'
+            {...createCountryPillEvents(end)}
+          />{' '}
+          countries are joined by an unbroken chain of{' '}
+          <CountryPill
+            className='bg-connected/60 inline text-xs px-1'
+            children='connected'
+          />{' '}
+          countries.
         </Step>
         <Step n={4}>
           After the round, your path is compared to the{' '}
-          <CountryPill className='bg-optimal/80 inline text-xs px-1'>
-            shortest possible path
+          <CountryPill className='bg-target/80 inline text-xs px-1'>
+            optimal path
           </CountryPill>
           . Your score is based on how many countries are revealed.{' '}
           <CountryPill className='bg-text/20 inline text-xs px-1'>

@@ -93,9 +93,9 @@ export const winningPathAtom = atom(get => {
 
 export const currentRoundSummary = atom(get => {
   if (!get(isRoundCompleteAtom)) return null;
-  const optimal = get(targetPathAtom).length - 2;
+  const target = get(targetPathAtom).length - 2;
   const revealed = get(revealedCountriesAtom).length;
-  return { revealed, optimal };
+  return { revealed, target };
 });
 
 export const revealedOffWinningPathAtom = atom(get => {

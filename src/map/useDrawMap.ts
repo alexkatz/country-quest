@@ -175,8 +175,8 @@ export const useDrawMap = ({
       if (isRoundComplete) {
         if (isRevealedOffWinningPath) fillColor = colors.revealed;
         if (isWinning) fillColor = colors.connected;
-        if (isTarget) fillColor = colors.optimal;
-        if (isUnrevealedTarget) fillColor = colors.optimalFaded;
+        if (isTarget) fillColor = colors.target;
+        if (isUnrevealedTarget) fillColor = colors.targetFaded;
         if (isStart || isEnd) fillColor = colors.terminal;
       } else {
         if (isRevealed) fillColor = colors.revealed;

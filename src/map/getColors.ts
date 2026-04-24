@@ -2,8 +2,8 @@ export type Colors = {
   surface: string;
   text: string;
   terminal: string;
-  optimal: string;
-  optimalFaded: string;
+  target: string;
+  targetFaded: string;
   connected: string;
   globeBorder: string;
   countryBorder: string;
@@ -23,7 +23,7 @@ export const getColors = (): Colors => {
   const text = style.getPropertyValue('--color-text').trim();
   const terminal = style.getPropertyValue('--color-terminal').trim();
   const connected = style.getPropertyValue('--color-connected').trim();
-  const optimal = style.getPropertyValue('--color-optimal').trim();
+  const target = style.getPropertyValue('--color-target').trim();
   const revealed = `color-mix(in oklch, ${text} 50%, ${surface})`;
   const unrevealed = `color-mix(in oklch, ${text} 10%, ${surface})`;
 
@@ -36,8 +36,8 @@ export const getColors = (): Colors => {
     revealed,
     unrevealed,
 
-    optimal: `color-mix(in srgb, ${optimal} 100%, ${revealed} 90%)`,
-    optimalFaded: `color-mix(in srgb, ${optimal} 60%, ${surface} 100%)`,
+    target: `color-mix(in srgb, ${target} 100%, ${revealed} 90%)`,
+    targetFaded: `color-mix(in srgb, ${target} 60%, ${surface} 100%)`,
 
     globeBorder: `color-mix(in oklch, ${text} 30%, ${surface})`,
     countryBorder: `color-mix(in oklch, ${text} 80%, ${surface})`,

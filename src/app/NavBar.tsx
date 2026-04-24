@@ -8,6 +8,7 @@ import { RoundSummary } from './RoundSummary';
 import { RoundActions } from './RoundActions';
 import { Help } from './Help';
 import { useObserveSizeSilently } from '../layout/common/useObserveSize';
+import { ScoreSummary } from './ScoreSummary';
 
 export const NavBar = (props: { className?: string }) => {
   const store = useStore();
@@ -30,6 +31,7 @@ export const NavBar = (props: { className?: string }) => {
     <nav ref={navRef} className={tw('z-50', props.className)}>
       <div className='flex relative flex-col gap-2 p-2 w-full max-w-7xl sm:mx-auto sm:px-2'>
         {isHelpOpen && <Help />}
+        {isRoundComplete && <ScoreSummary />}
         {isRoundComplete && <RoundSummary />}
         {!isRoundComplete && <RoundActions ref={inputRef} />}
       </div>

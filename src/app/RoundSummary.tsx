@@ -4,7 +4,6 @@ import { Info, Dot } from 'lucide-react';
 import { tw } from '../layout/tw';
 import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
-import { useNextRound } from '../game/useNextRound';
 
 export const RoundSummary = () => {
   const winningPath = useAtomValue(gameState.winningPathAtom);
@@ -15,10 +14,6 @@ export const RoundSummary = () => {
   const endCountry = useAtomValue(gameState.endCountryAtom);
   const [isHelpOpen, setIsHelpOpen] = useAtom(gameState.showHelpAtom);
   const revealedCountries = useAtomValue(gameState.revealedCountriesAtom);
-
-  const roundSummary = useAtomValue(gameState.currentRoundSummary)!;
-  const setNextRound = useNextRound();
-
   return (
     <div className='bg-background/30 relative rounded-lg border border-text/30 flex gap-1 backdrop-blur-2xl shadow-sm/20 p-2 overflow-y-auto max-h-[40dvh]'>
       <button
@@ -39,7 +34,7 @@ export const RoundSummary = () => {
             Your path{' '}
             {isWinningPathTarget ? (
               <span>
-                is <span className='font-bold'>optimal</span>, with
+                is <span className='font-bold'>target</span>, with
               </span>
             ) : (
               'has'
@@ -54,7 +49,7 @@ export const RoundSummary = () => {
                 key={country.id}
                 className={tw(
                   'bg-connected/60',
-                  targetPath.includes(country) && 'bg-optimal/60',
+                  targetPath.includes(country) && 'bg-target/60',
                   (country === startCountry || country === endCountry) &&
                     'bg-terminal/60',
                 )}
@@ -68,7 +63,7 @@ export const RoundSummary = () => {
             <>
               <div className='text-lg'>
                 <Dot />
-                The optimal path has{' '}
+                The target path has{' '}
                 <span className='font-bold'>{targetPath.length - 2}</span>{' '}
                 connecting countries:
               </div>
@@ -78,7 +73,7 @@ export const RoundSummary = () => {
                   <CountryPill
                     key={country.id}
                     className={tw(
-                      'bg-optimal/60',
+                      'bg-target/60',
                       (country === startCountry || country === endCountry) &&
                         'bg-terminal/60',
                     )}
@@ -110,7 +105,7 @@ export const RoundSummary = () => {
                     key={country.id}
                     className={tw(
                       'bg-text/20',
-                      targetPath.includes(country) && 'bg-optimal/60',
+                      targetPath.includes(country) && 'bg-target/60',
                     )}
                     country={country}
                     {...createCountryPillEvents(country)}
@@ -119,22 +114,6 @@ export const RoundSummary = () => {
               </div>
             </>
           )}
-        </div>
-      </div>
-
-      <div className='flex flex-col gap-2 mr-9'>
-        <div className='border border-text/30 flex flex-col items-center rounded-lg shadow-sm/20 p-1'>
-          <div className='opacity-60 italic'>Score this round</div>
-          <div className='font-bold'>
-            +{roundSummary.revealed - roundSummary.optimal}
-          </div>
-        </div>
-
-        <div className='border border-text/30 flex flex-col items-center rounded-lg shadow-sm/20 p-1'>
-          <div className='opacity-60 italic'>Score overall</div>
-          <div className='font-bold'>
-            +{roundSummary.revealed - roundSummary.optimal}
-          </div>
         </div>
       </div>
     </div>

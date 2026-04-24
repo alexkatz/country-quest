@@ -4,10 +4,10 @@ import { getRandomPath } from './getRandomPath';
 
 export const useNextRound = () => {
   const setRevealedCountries = useSetAtom(gameState.revealedCountriesAtom);
-  const setOptimalPath = useSetAtom(gameState.targetPathAtom);
+  const setTargetPath = useSetAtom(gameState.targetPathAtom);
   return () => {
     setRevealedCountries([]);
-    setOptimalPath(
+    setTargetPath(
       getRandomPath({
         length:
           gameState.INITIAL_MIN_PATH_SIZE +

@@ -43,7 +43,7 @@ export const useOnKeyDown = (props: {
         pills[e.key === 'ArrowRight' ? 0 : pills.length - 1]?.focus();
       } else {
         const next = e.key === 'ArrowRight' ? focused + 1 : focused - 1;
-        pills[Math.max(0, Math.min(next, pills.length - 1))]?.focus();
+        pills[(next + pills.length) % pills.length]?.focus();
       }
 
       return;
@@ -77,8 +77,7 @@ export const useOnKeyDown = (props: {
       }
       const rowIndex = rows.findIndex(row => row.contains(focused));
       if (rowIndex === -1) return;
-      const nextRowIndex = e.key === 'ArrowDown' ? rowIndex + 1 : rowIndex - 1;
-      if (nextRowIndex < 0 || nextRowIndex >= rows.length) return;
+      const nextRowIndex = (e.key === 'ArrowDown' ? rowIndex + 1 : rowIndex - 1 + rows.length) % rows.length;
       const pillIndexInRow = Array.from(
         rows[rowIndex].querySelectorAll<HTMLElement>('[data-country-pill]'),
       ).indexOf(focused);

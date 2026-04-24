@@ -18,21 +18,22 @@ React 19 + TypeScript SPA built with Vite. React Compiler is enabled via `babel-
 
 ### Game concept
 
-The player is given a **start country** and an **end country** (randomly chosen at a set distance apart). They type country names to "reveal" intermediate countries. The round completes when start and end are contiguously connected through revealed countries via shared borders. Post-round, a BFS finds the shortest winning path through the revealed countries and compares it to the pre-computed optimal path.
+The player is given a **start country** and an **end country** (randomly chosen at a set distance apart). They type country names to "reveal" intermediate countries. The round completes when start and end are contiguously connected through revealed countries via shared borders. Post-round, a BFS finds the shortest winning path through the revealed countries and compares it to the pre-computed target path.
 
 ### State management — Jotai
 
 State is split across two files:
 
 - **`src/game/state.ts`** — all game logic atoms:
-  - Base atoms: `startCountryAtom`, `endCountryAtom`, `revealedCountriesAtom`, `optimalPathAtom`, `termAtom` (search input text), `roundAtom`, `maxPathSizeAtom`
+  - Base atoms: `startCountryAtom`, `endCountryAtom`, `revealedCountriesAtom`, `targetPathAtom`, `termAtom` (search input text), `roundAtom`, `maxPathSizeAtom`
   - Display toggles (persisted via `atomWithStorage`): `showAllCountriesAtom`, `showAllNamesAtom`, `showDebugInfoAtom`, `showHelpAtom`
-  - Derived atoms: `connectedRevealedCountriesAtom`, `isRoundCompleteAtom`, `winningPathAtom`, `missedOptimalPathAtom`, `revealedNonOptimalAtom`, `roundScoreSummary`
-- **`src/map/state.ts`** — visual/globe atoms: `hoveredCountryAtom`, `lastCenteredCountriesAtom`, `mouseGlobePosAtom`, plus constants for globe size, scale limits, sensitivity, `KEYBOARD_ZOOM_STEP`, and spring configs.
+  - Derived atoms: `connectedRevealedCountriesAtom`, `isRoundCompleteAtom`, `winningPathAtom`, `currentRoundSummary` (returns `{ revealed, target }` when round complete), `revealedOffWinningPathAtom`
+- **`src/map/state.ts`** — visual/globe atoms: `hoveredCountryAtom`, `lastCenteredCountriesAtom`, `mouseGlobePosAtom`, plus constants for globe size, scale limits, sensitivity, `KEYBOARD_ZOOM_STEP`, and spring configs (`ROTATION_SPRING_CONFIG`, `SCALE_SPRING_CONFIG`, `VIEWPORT_OFFSET_SPRING_CONFIG`).
+- **`src/layout/state.ts`** — layout atoms: `navBarHeightAtom` (measured NavBar height used to dynamically center the globe in the visible space above the nav bar).
 
 ### Globe rendering — `src/map/useDrawMap.ts`
 
-Canvas-based rendering using a **d3-geo orthographic projection**. Runs a continuous `requestAnimationFrame` loop. Globe rotation and zoom are animated with `@react-spring/web` spring values (`rotX/Y/Z`, `scale`) passed into the hook. Country fill colors are determined by game state (terminal, connected, revealed, optimal, unrevealed) and read from CSS custom properties via `getColors()` (cached after first call). Countries too small to render as polygons get a dot + circle outline instead (area threshold < 2 in projection units).
+Canvas-based rendering using a **d3-geo orthographic projection**. Runs a continuous `requestAnimationFrame` loop. Globe rotation and zoom are animated with `@react-spring/web` spring values (`rotX/Y/Z`, `scale`, `viewportOffsetTop`) passed into the hook; `viewportOffsetTop` shifts the projection center so the globe visually centers in the space above the nav bar. Country fill colors are determined by game state (terminal, connected, revealed, target, unrevealed) and read from CSS custom properties via `getColors()` (cached after first call). Countries too small to render as polygons get a dot + circle outline instead (area threshold < 2 in projection units).
 
 Hover detection (`src/map/useMapGestures.ts`) uses `geoContains` for normal countries. For small countries, a fallback circle hit-test runs if nothing was found: `smallCountryIds` is precomputed once at module load (same area threshold), and the fallback checks if the mouse is within 6px of the projected centroid — matching the drawn circle radius.
 
@@ -55,6 +56,12 @@ TopoJSON (`src/map/data/countries-simplified.json`) is loaded in `countries.ts`,
 - `getRandomPath.ts` — BFS from a random start, picks an end exactly `length` hops away, returns the connecting path.
 - `countryByName.ts` — `Map<string, Country>` for O(1) name lookups.
 
+### Layout utilities — `src/layout/common/`
+
+- `useObserveSize` — wraps `use-resize-observer` to track a single dimension (`width` or `height`) of a DOM element; `useObserveSizeSilently` fires a callback instead of re-rendering.
+- `useVisualViewportHeight` — tracks `window.visualViewport` height and `offsetTop` (important for mobile Safari where the keyboard pushes the viewport).
+- `getIsMobileSafari` — detects mobile Safari for platform-specific sensitivity tweaks.
+
 ### Fuzzy search — `src/layout/common/fuzzy.ts`
 
 Lightweight custom fuzzy search used in `NavInput` to filter and rank country suggestions. `normalize()` strips accents (Unicode-aware). `fuzzyMatch()` checks if query characters appear in order. `score()` ranks by exact → prefix → partial match.
@@ -66,7 +73,7 @@ Typed multi-event pub/sub used to drive globe animation without prop drilling. `
 - `'center'` (`CenterCountriesHandler`) — rotates the globe to center on a list of countries. Accepts `{ countries, scaleToFit? }`. When `scaleToFit` is `true`, zoom is adjusted if needed: scale is only reduced (zoomed out) to the minimum required to fit all countries in view; it is never increased.
 - `'scale'` (`ScaleHandler`) — adjusts zoom by a delta value.
 
-`useOnGlobeEvents` (in `Map`) subscribes to both events and springs the rotation/scale. `useOnRevealCountry` watches `revealedCountriesAtom` and emits `'center'` when a new country is revealed.
+`useOnGlobeEvents` (in `Map`) subscribes to both events and springs the rotation/scale. `useOnRevealCountry` watches `revealedCountriesAtom`, emits `'center'` when a new country is revealed, and — once the round is complete — updates `targetPathAtom` to the winning path when their lengths match (so the target highlight snaps to the actual winning route).
 
 ### CountryPill events — `src/app/createCountryPillEvents.ts`
 
@@ -89,8 +96,7 @@ Uses React 19's `useEffectEvent` to avoid stale closures.
 ```
 App (JotaiProvider + createStore)
 └── Landing
-    ├── ShortcutGuide (top-right overlay, keyboard shortcut reference)
-    ├── DebugInfo
+    ├── KeyboardShortcutGuide (top-right overlay, keyboard shortcut reference)
     ├── Map (canvas globe)
     │   useDrawMap, useMapGestures, useOnGlobeEvents, useOnRevealCountry
     └── NavBar (bottom bar)
@@ -99,13 +105,13 @@ App (JotaiProvider + createStore)
         │   CountryPills for start, revealed, and end countries
         │   Show All Countries / Show All Names toggles
         └── RoundSummary (post-round)
-            Winning path vs. optimal path comparison
+            Winning path vs. target path comparison
             CountryPills for each path segment
             Info button toggles Help
 ```
 
 ### Styling notes
 
-- Tailwind v4 — CSS custom properties (`--color-background`, `--color-text`, `--color-surface`, `--color-terminal`, `--color-connected`, `--color-optimal`) are defined in CSS and consumed both by Tailwind classes and by `getColors()` for canvas rendering.
+- Tailwind v4 — CSS custom properties (`--color-background`, `--color-text`, `--color-surface`, `--color-terminal`, `--color-connected`, `--color-target`) are defined in CSS and consumed both by Tailwind classes and by `getColors()` for canvas rendering.
 - `getColors()` caches on first call. If colors change at runtime (theme switch etc.), the cache must be invalidated manually.
 - `CountryPill` uses a `data-country-pill` attribute for keyboard navigation DOM selection.
