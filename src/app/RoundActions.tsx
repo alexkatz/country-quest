@@ -10,6 +10,7 @@ import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
 import { Button } from '../layout/common/Button';
 import { getIsMobileSafari } from '../layout/common/getIsMobileSafari';
+import { Popover } from 'react-tiny-popover';
 
 export const RoundActions = (props: {
   ref: RefObject<HTMLInputElement | null>;
@@ -88,26 +89,28 @@ export const RoundActions = (props: {
   });
 
   return (
-    <>
-      {suggestions.length > 0 && (
-        <div className='bg-background/30 rounded-lg border border-text/30 backdrop-blur-2xl shadow-sm p-2'>
-          {suggestions.map((country, i) => {
-            return (
-              <button
-                key={country.name}
-                className={tw(
-                  'p-1 w-full flex items-center justify-start hover:bg-text/20 rounded-lg cursor-pointer',
-                  i === selectedSuggestionIndex && 'bg-text/20',
-                )}
-                onClick={() => onRevealCountry(country)}
-              >
-                {country.name}
-              </button>
-            );
-          })}
+    <Popover
+      isOpen={suggestions.length > 0}
+      padding={8}
+      positions='top'
+      align='start'
+      content={
+        <div className='bg-background/30 max-w-dvh rounded-lg border border-text/30 backdrop-blur-2xl shadow-sm p-2'>
+          {suggestions.map((country, i) => (
+            <button
+              key={country.id}
+              className={tw(
+                'p-1 w-full flex items-center justify-start hover:bg-text/20 rounded-lg cursor-pointer',
+                i === selectedSuggestionIndex && 'bg-text/20',
+              )}
+              onClick={() => onRevealCountry(country)}
+            >
+              {country.name}
+            </button>
+          ))}
         </div>
-      )}
-
+      }
+    >
       <div className='flex flex-col gap-2 bg-background/30 backdrop-blur-2xl rounded-lg border border-text/30 shadow-sm p-2'>
         <div className='flex items-center gap-1'>
           <form
@@ -200,6 +203,6 @@ export const RoundActions = (props: {
           ))}
         </div>
       </div>
-    </>
+    </Popover>
   );
 };

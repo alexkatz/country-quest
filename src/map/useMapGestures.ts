@@ -1,6 +1,7 @@
 import { useGesture } from '@use-gesture/react';
 import { useStore } from 'jotai';
 import * as mapState from './state';
+import * as layoutState from '../layout/state';
 import type { SpringValue } from '@react-spring/web';
 import type { RefObject } from 'react';
 import { geoContains, geoOrthographic, geoPath, geoCentroid } from 'd3-geo';
@@ -24,6 +25,7 @@ type Props = {
   rotY: SpringValue<number>;
   rotZ: SpringValue<number>;
   scale: SpringValue<number>;
+  viewportOffsetTop: SpringValue<number>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
 };
 
@@ -32,6 +34,7 @@ export const useMapGestures = ({
   rotY,
   rotZ,
   scale,
+  viewportOffsetTop,
   canvasRef,
 }: Props) => {
   const store = useStore();
@@ -96,9 +99,17 @@ export const useMapGestures = ({
         const rect = canvas.getBoundingClientRect();
         const cssWidth = rect.width;
         const cssHeight = rect.height;
+        const offsetTop = viewportOffsetTop.get();
+        const navBarHeight = store.get(layoutState.navBarHeightAtom);
         const displaySize = Math.min(cssWidth, cssHeight);
-        const offsetX = (cssWidth - displaySize) / 2;
-        const offsetY = (cssHeight - displaySize) / 2;
+        const viewportHeight =
+          window.visualViewport?.height ?? window.innerHeight;
+        const renderWidth = cssWidth;
+        const renderHeight = viewportHeight - navBarHeight;
+
+        const offsetX = (renderWidth - displaySize) / 2;
+        const offsetY = offsetTop + (renderHeight - displaySize) / 2;
+
         const globeScale = mapState.GLOBE_SIZE / displaySize;
 
         const mx = (event.clientX - rect.left - offsetX) * globeScale;

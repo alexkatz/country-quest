@@ -97,17 +97,21 @@ export const useDrawMap = ({
     const end = store.get(gameState.endCountryAtom);
     const isRoundComplete = store.get(gameState.isRoundCompleteAtom);
     const winningPath = store.get(gameState.winningPathAtom);
-    const missedOptimalPath = store.get(gameState.missedOptimalPathAtom);
-    const revealedNonOptimal = store.get(gameState.revealedOffPathAtom);
-    const showNames = isRoundComplete
-      ? true
-      : store.get(gameState.showAllNamesAtom);
-    const showAllCountries = isRoundComplete
-      ? true
-      : store.get(gameState.showAllCountriesAtom);
+    const targetPath = store.get(gameState.targetPathAtom);
+    const revealedOffWinningPath = store.get(
+      gameState.revealedOffWinningPathAtom,
+    );
     const hovered = store.get(mapState.hoveredCountryAtom);
     const centered = store.get(mapState.lastCenteredCountriesAtom);
     const mouseGlobePos = store.get(mapState.mouseGlobePosAtom);
+
+    const showNames = isRoundComplete
+      ? true
+      : store.get(gameState.showAllNamesAtom);
+
+    const showAllCountries = isRoundComplete
+      ? true
+      : store.get(gameState.showAllCountriesAtom);
 
     const connectedRevealedCountries = store.get(
       gameState.connectedRevealedCountriesAtom,
@@ -155,34 +159,43 @@ export const useDrawMap = ({
 
       const isHovered = country === hovered;
       const isCentered = centered?.includes(country);
-      const isMissedOptimal = missedOptimalPath.includes(country);
+      const asHovered = isHovered || isCentered;
       const isConnectedRevealed = connectedRevealedCountries.includes(country);
-      const isRevealedNonOptimal = revealedNonOptimal.includes(country);
+      const isRevealedOffWinningPath = revealedOffWinningPath.includes(country);
+
+      const isTarget = targetPath.includes(country);
+      const isUnrevealedTarget = isTarget && !isRevealed;
+      const isWinning = winningPath.includes(country);
 
       ctx.beginPath();
       pathGen(country.feature);
 
-      if (isStart || isEnd) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.terminalHover : colors.terminal;
-      } else if (isMissedOptimal) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.optimalHover : colors.optimal;
-      } else if (isRevealedNonOptimal) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.revealedHover : colors.revealed;
-      } else if (isConnectedRevealed) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.connectedHover : colors.connected;
-      } else if (isRevealed) {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.revealedHover : colors.revealed;
+      let fillColor = colors.unrevealed;
+
+      if (isRoundComplete) {
+        if (isRevealedOffWinningPath) fillColor = colors.revealed;
+        if (isWinning) fillColor = colors.connected;
+        if (isTarget) fillColor = colors.optimal;
+        if (isUnrevealedTarget) fillColor = colors.optimalFaded;
+        if (isStart || isEnd) fillColor = colors.terminal;
       } else {
-        ctx.fillStyle =
-          isHovered || isCentered ? colors.unrevealedHover : colors.unrevealed;
+        if (isRevealed) fillColor = colors.revealed;
+        if (isConnectedRevealed) fillColor = colors.connected;
+        if (isStart || isEnd) fillColor = colors.terminal;
       }
 
+      ctx.fillStyle = fillColor;
       ctx.fill();
+
+      if (asHovered) {
+        ctx.fillStyle =
+          fillColor === colors.unrevealed
+            ? 'rgba(0, 0, 0, 0.15)'
+            : 'rgba(0, 0, 0, 0.2)';
+        ctx.fill();
+        ctx.fillStyle = fillColor;
+      }
+
       ctx.stroke();
 
       // Countries too small to form a visible polygon — draw a dot with enclosing circle

@@ -13,7 +13,7 @@ export const MIN_SCALE = 100;
 export const DEFAULT_SCALE = 250;
 
 export const MAX_SCALE = 1700;
-export const ROTATION_SENSITIVITY = getIsMobileSafari() ? 0.5 : 0.15;
+export const ROTATION_SENSITIVITY = getIsMobileSafari() ? 0.4 : 0.2;
 export const ZOOM_SENSITIVITY = 100;
 export const PINCH_ZOOM_SENSITIVITY = 10_000;
 export const KEYBOARD_ZOOM_STEP = 200;

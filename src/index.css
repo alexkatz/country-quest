@@ -21,12 +21,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --color-background: oklch(0.129 0.042 264.7); /* gray-950 */
-  --color-text: oklch(0.968 0.02 230); /* blue-tinted gray-100 */
-  --color-surface: oklch(0.39 0.06 256.27);
-  --color-connected: oklch(0.6 0.12 65); /* muted amber */
-  --color-terminal: oklch(0.56 0.15 300); /* violet */
-  --color-optimal: oklch(0.57 0.13 180); /* teal */
+  --color-background: #020618;
+  --color-text: #e8f7ff;
+  --color-surface: #2f4665;
+  --color-connected: #b16f23;
+  --color-terminal: #835cbe;
+  --color-optimal: #008f7a;
 }
 
 @theme inline {

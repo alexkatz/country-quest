@@ -4,25 +4,26 @@ import { Info, Dot } from 'lucide-react';
 import { tw } from '../layout/tw';
 import { CountryPill } from './CountryPill';
 import { createCountryPillEvents } from './createCountryPillEvents';
+import { useNextRound } from '../game/useNextRound';
 
 export const RoundSummary = () => {
   const winningPath = useAtomValue(gameState.winningPathAtom);
-  const optimalPath = useAtomValue(gameState.optimalPathAtom);
-  const missedOptimalPath = useAtomValue(gameState.missedOptimalPathAtom);
-  const revealedOffPath = useAtomValue(gameState.revealedOffPathAtom);
-  const isWinningPathOptimal = winningPath.length === optimalPath.length;
+  const targetPath = useAtomValue(gameState.targetPathAtom);
+  const revealedOffPath = useAtomValue(gameState.revealedOffWinningPathAtom);
+  const isWinningPathTarget = winningPath.length === targetPath.length;
   const startCountry = useAtomValue(gameState.startCountryAtom);
   const endCountry = useAtomValue(gameState.endCountryAtom);
   const [isHelpOpen, setIsHelpOpen] = useAtom(gameState.showHelpAtom);
   const revealedCountries = useAtomValue(gameState.revealedCountriesAtom);
 
-  const scoreSummary = useAtomValue(gameState.roundScoreSummary)!;
+  const roundSummary = useAtomValue(gameState.currentRoundSummary)!;
+  const setNextRound = useNextRound();
 
   return (
-    <div className='bg-background/30 relative rounded-lg border border-text/30 backdrop-blur-2xl flex flex-col gap-1 shadow-sm/20 p-2'>
+    <div className='bg-background/30 relative rounded-lg border border-text/30 flex gap-1 backdrop-blur-2xl shadow-sm/20 p-2 overflow-y-auto max-h-[40dvh]'>
       <button
         className={tw(
-          'absolute top-2 right-2 cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
+          'absolute size-7 grid place-items-center col-start-2 top-2 right-2 cursor-pointer interactive-opacity p-1 border border-transparent shadow-sm rounded-lg',
           isHelpOpen && 'bg-text/30 border-text/30',
           !isHelpOpen && 'shadow-transparent',
         )}
@@ -31,84 +32,111 @@ export const RoundSummary = () => {
         <Info />
       </button>
 
-      <div className='text-lg'>
-        <Dot />
-        Your path{' '}
-        {isWinningPathOptimal ? (
-          <span>
-            is <span className='font-bold'>optimal</span>, with
-          </span>
-        ) : (
-          'has'
-        )}{' '}
-        <span className='font-bold'>{winningPath.length - 2}</span> connecting
-        countries:
-      </div>
-
-      <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
-        {winningPath.map(country => (
-          <CountryPill
-            key={country.id}
-            className={tw(
-              'bg-connected/60',
-              (country === startCountry || country === endCountry) &&
-                'bg-terminal/60',
-            )}
-            country={country}
-            {...createCountryPillEvents(country)}
-          />
-        ))}
-      </div>
-
-      {!isWinningPathOptimal && (
-        <>
+      <div className='grid gap-1 flex-1'>
+        <div className='col-start-1 flex flex-col gap-1'>
           <div className='text-lg'>
             <Dot />
-            The optimal path has{' '}
-            <span className='font-bold'>{optimalPath.length - 2}</span>{' '}
+            Your path{' '}
+            {isWinningPathTarget ? (
+              <span>
+                is <span className='font-bold'>optimal</span>, with
+              </span>
+            ) : (
+              'has'
+            )}{' '}
+            <span className='font-bold'>{winningPath.length - 2}</span>{' '}
             connecting countries:
           </div>
 
           <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
-            {optimalPath.map(country => (
+            {winningPath.map(country => (
               <CountryPill
                 key={country.id}
                 className={tw(
                   'bg-connected/60',
+                  targetPath.includes(country) && 'bg-optimal/60',
                   (country === startCountry || country === endCountry) &&
                     'bg-terminal/60',
-                  !winningPath.includes(country) && 'bg-text/20!',
-                  missedOptimalPath.includes(country) && 'bg-optimal/80!',
                 )}
                 country={country}
                 {...createCountryPillEvents(country)}
               />
             ))}
           </div>
-        </>
-      )}
 
-      {revealedOffPath.length > 0 && (
-        <>
-          <div className='text-lg'>
-            <Dot />
-            You revealed{' '}
-            <span className='font-bold'>{revealedCountries.length}</span>{' '}
-            countries. The remaining are:
-          </div>
+          {!isWinningPathTarget && (
+            <>
+              <div className='text-lg'>
+                <Dot />
+                The optimal path has{' '}
+                <span className='font-bold'>{targetPath.length - 2}</span>{' '}
+                connecting countries:
+              </div>
 
-          <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
-            {revealedOffPath.map(country => (
-              <CountryPill
-                key={country.id}
-                className='bg-text/20'
-                country={country}
-                {...createCountryPillEvents(country)}
-              />
-            ))}
+              <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
+                {targetPath.map(country => (
+                  <CountryPill
+                    key={country.id}
+                    className={tw(
+                      'bg-optimal/60',
+                      (country === startCountry || country === endCountry) &&
+                        'bg-terminal/60',
+                    )}
+                    country={country}
+                    {...createCountryPillEvents(country)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {revealedOffPath.length > 0 && (
+            <>
+              <div className='text-lg'>
+                <Dot />
+                Of the{' '}
+                <span className='font-bold'>
+                  {revealedCountries.length}
+                </span>{' '}
+                total countries revealed,{' '}
+                <span className='font-bold'>{revealedOffPath.length}</span>{' '}
+                {revealedOffPath.length === 1 ? 'is' : 'are'} not part of your
+                path:
+              </div>
+
+              <div data-pill-row className='flex gap-1 flex-wrap ml-8'>
+                {revealedOffPath.map(country => (
+                  <CountryPill
+                    key={country.id}
+                    className={tw(
+                      'bg-text/20',
+                      targetPath.includes(country) && 'bg-optimal/60',
+                    )}
+                    country={country}
+                    {...createCountryPillEvents(country)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      <div className='flex flex-col gap-2 mr-9'>
+        <div className='border border-text/30 flex flex-col items-center rounded-lg shadow-sm/20 p-1'>
+          <div className='opacity-60 italic'>Score this round</div>
+          <div className='font-bold'>
+            +{roundSummary.revealed - roundSummary.optimal}
           </div>
-        </>
-      )}
+        </div>
+
+        <div className='border border-text/30 flex flex-col items-center rounded-lg shadow-sm/20 p-1'>
+          <div className='opacity-60 italic'>Score overall</div>
+          <div className='font-bold'>
+            +{roundSummary.revealed - roundSummary.optimal}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

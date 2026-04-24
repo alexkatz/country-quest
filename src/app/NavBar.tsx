@@ -28,7 +28,7 @@ export const NavBar = (props: { className?: string }) => {
 
   return (
     <nav ref={navRef} className={tw('z-50', props.className)}>
-      <div className='flex relative flex-col gap-2 p-2 w-full max-w-5xl sm:mx-auto sm:px-2'>
+      <div className='flex relative flex-col gap-2 p-2 w-full max-w-7xl sm:mx-auto sm:px-2'>
         {isHelpOpen && <Help />}
         {isRoundComplete && <RoundSummary />}
         {!isRoundComplete && <RoundActions ref={inputRef} />}

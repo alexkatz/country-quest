@@ -42,12 +42,12 @@ export const Help = () => {
           country. Your goal is to connect them.
         </Step>
         <Step n={2}>
-          Type any country name to reveal it on the globe. Revealed countries
+          Type a country's name to reveal it on the globe. Revealed countries
           that share a border become{' '}
           <CountryPill className='bg-connected/60 inline text-xs px-1'>
             connected
           </CountryPill>
-          .
+          . Not all countries are in the game at this time.
         </Step>
         <Step n={3}>
           The round ends when start and end are joined by an unbroken chain of
@@ -62,8 +62,7 @@ export const Help = () => {
           <CountryPill className='bg-text/20 inline text-xs px-1'>
             Revealed but off-path
           </CountryPill>{' '}
-          countries still count as reveals and will raise your score. The lower
-          your score, the better.
+          countries will raise your score. The lower your score, the better.
         </Step>
         <Step n={5}>Keyboard shortcuts are shown in the top-right corner.</Step>
         <Step n={6}>

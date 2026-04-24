@@ -5,8 +5,8 @@ import { getConnectedGroup } from './getConnectedGroup';
 import type { Country } from '../map/countries';
 import { getNeighbors } from './getNeighbors';
 
-const INITIAL_MIN_PATH_SIZE = 5;
-const INITIAL_MAX_PATH_SIZE = 23;
+export const INITIAL_MIN_PATH_SIZE = 5;
+export const INITIAL_MAX_PATH_SIZE = 5;
 
 const INITIAL_PATH = getRandomPath({
   length:
@@ -26,7 +26,7 @@ export const maxPathSizeAtom = atom(INITIAL_MAX_PATH_SIZE);
 export const termAtom = atom('');
 export const startCountryAtom = atom(INITIAL_PATH.at(0)!);
 export const endCountryAtom = atom(INITIAL_PATH.at(-1)!);
-export const optimalPathAtom = atom(INITIAL_PATH);
+export const targetPathAtom = atom(INITIAL_PATH);
 export const revealedCountriesAtom = atom<Country[]>([]);
 
 // computes the set of revealed countries that are connected to either the start or end country
@@ -91,27 +91,18 @@ export const winningPathAtom = atom(get => {
   return [];
 });
 
-export const roundScoreSummary = atom(get => {
+export const currentRoundSummary = atom(get => {
   if (!get(isRoundCompleteAtom)) return null;
-  const optimal = get(optimalPathAtom).length - 2;
-  const guesses = get(revealedCountriesAtom).length;
-  return { guesses, optimal, score: guesses - optimal };
+  const optimal = get(targetPathAtom).length - 2;
+  const revealed = get(revealedCountriesAtom).length;
+  return { revealed, optimal };
 });
 
-export const revealedOffPathAtom = atom(get => {
+export const revealedOffWinningPathAtom = atom(get => {
   if (!get(isRoundCompleteAtom)) return [];
   const revealed = get(revealedCountriesAtom);
   const winningPath = get(winningPathAtom);
   return revealed.filter(c => !winningPath.includes(c));
-});
-
-export const missedOptimalPathAtom = atom(get => {
-  if (!get(isRoundCompleteAtom)) return [];
-  const winningPath = get(winningPathAtom);
-  const optimalPath = get(optimalPathAtom);
-  return optimalPath.length === winningPath.length
-    ? []
-    : optimalPath.filter(c => !winningPath.includes(c));
 });
 
 export const showAllNamesAtom = atomWithStorage(

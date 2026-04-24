@@ -1,7 +1,6 @@
 import { NavBar } from './NavBar';
 import { Map } from '../map/Map';
 import { tw } from '../layout/tw';
-import { DebugInfo } from './DebugInfo';
 import { useEffect } from 'react';
 import { globeEvents } from '../map/globeEvents';
 import { useAtomValue } from 'jotai';
@@ -22,7 +21,6 @@ export const Landing = () => {
   return (
     <div className='bg-background h-dvh w-screen relative'>
       <KeyboardShortcutGuide className='absolute top-2 right-2' />
-      <DebugInfo />
       <Map className='absolute inset-0' />
       <NavBar
         className={tw(
